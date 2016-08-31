@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
 	"net/http"
 )
@@ -16,7 +17,14 @@ type Application struct {
 
 // Creates a new application and returns the pointer value
 func NewApp(port string) *Application {
+	db, err := gorm.Open("sqlite3", "/tmp/test.db")
+
+	if err != nil {
+		panic(err)
+	}
+
 	return &Application{
+		db:     db,
 		router: mux.NewRouter(),
 		port:   port,
 	}
