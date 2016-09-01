@@ -7,6 +7,24 @@ import (
 	"net/http"
 )
 
+func PostNotifications(w http.ResponseWriter, r *http.Request) {
+	var n []Notification
+
+	err := json.NewDecoder(r.Body).Decode(&n)
+
+	if err != nil {
+		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
+		log.Println(err)
+		return
+	}
+
+	for _, r := range n {
+		App.db.Create(&r)
+	}
+
+	WriteResponseHeader(w, 202)
+}
+
 // Endpoint to create a new notification
 // [POST] /api/v1/notification
 func PostNotification(w http.ResponseWriter, r *http.Request) {
@@ -39,7 +57,7 @@ func FindNotification(w http.ResponseWriter, r *http.Request) {
 
 	var n Notification
 
-	if err := App.db.Where("ID = ?", params["id"]).First(&n).Error; err != nil {
+	if err := App.db.Where("ID = ?", params["id"]).Or(&Notification{ExtId: params["id"]}).First(&n).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Notification not found"})
 		return
 	}

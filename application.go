@@ -34,7 +34,8 @@ func NewApp(port string) *Application {
 func (a *Application) Run() {
 	a.setRoutes()
 
-	http.Handle("/", a.router)
+	http.Handle("/api", a.router)
+	http.Handle("/", http.FileServer(http.Dir("./html")))
 	log.Println("Starting Web Server on " + a.port)
 	log.Fatal(http.ListenAndServe(a.port, nil))
 }
@@ -42,10 +43,14 @@ func (a *Application) Run() {
 // Creates the Routes
 func (a *Application) setRoutes() {
 	// API specific routes
-	api := a.router.PathPrefix("/api/v1").Subrouter()
+	api := a.router.PathPrefix("/v1").Subrouter()
 
 	// [POST] /api/v1/notification
 	api.HandleFunc("/notification", PostNotification).
+		Methods("POST")
+
+	// [POST] /api/v1/notification/bulk
+	api.HandleFunc("/notification/bulk", PostNotifications).
 		Methods("POST")
 
 	// [GET] /api/v1/notification/{id}
