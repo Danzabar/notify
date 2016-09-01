@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 // Tag Model
@@ -16,7 +15,6 @@ type Tag struct {
 type Notification struct {
 	gorm.Model
 
-	Message   string `gorm:"type:text()"`
-	Tags      []Tag
-	DeletedAt time.Time
+	Message string `gorm:"type:text"`
+	Tags    []Tag
 }
