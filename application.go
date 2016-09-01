@@ -48,7 +48,23 @@ func (a *Application) setRoutes() {
 	api.HandleFunc("/notification", PostNotification).
 		Methods("POST")
 
+	// [GET] /api/v1/notification/{id}
+	api.HandleFunc("/notification/{id}", FindNotification).
+		Methods("GET")
+
 	// [GET] /api/v1/notification
 	api.HandleFunc("/notification", GetNotification).
+		Methods("GET")
+
+	// [GET] /api/v1/tag/{id}
+	api.HandleFunc("/tag/{id}", FindTag).
+		Methods("GET")
+
+	// [POST] /api/v1/tag
+	api.HandleFunc("/tag", PostTag).
+		Methods("POST")
+
+	// [GET] /api/v1/tag
+	api.HandleFunc("/tag", GetTag).
 		Methods("GET")
 }
