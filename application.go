@@ -79,6 +79,10 @@ func (a *Application) setRoutes() {
 	api.HandleFunc("/notification/{id}", FindNotification).
 		Methods("GET")
 
+	// [DELETE] /api/v1/notification/{id}
+	api.HandleFunc("/notification/{id}", DeleteNotification).
+		Methods("DELETE")
+
 	// [PUT] /api/v1/notification/{id}
 	api.HandleFunc("/notification/{id}", PutNotification).
 		Methods("PUT")
