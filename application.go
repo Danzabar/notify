@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -11,6 +12,8 @@ import (
 // Application struct to keep our dependencies tight
 type Application struct {
 	db     *gorm.DB
+	server *socketio.Server
+	socket socketio.Socket
 	router *mux.Router
 	port   string
 }
@@ -27,23 +30,42 @@ func NewApp(port string) *Application {
 		db:     db,
 		router: mux.NewRouter(),
 		port:   port,
+		server: ConnectSocket(),
 	}
+}
+
+// Creates socket io connection
+func ConnectSocket() *socketio.Server {
+	sv, err := socketio.NewServer(nil)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return sv
 }
 
 // Starts the Application and creates a listener
 func (a *Application) Run() {
 	a.setRoutes()
 
-	http.Handle("/api", a.router)
-	http.Handle("/", http.FileServer(http.Dir("./html")))
+	a.server.On("connection", func(so socketio.Socket) {
+		a.socket = so
+		so.Join("notify")
+	})
+
+	http.Handle("/socket.io/", a.server)
+	http.Handle("/", a.router)
 	log.Println("Starting Web Server on " + a.port)
 	log.Fatal(http.ListenAndServe(a.port, nil))
 }
 
 // Creates the Routes
 func (a *Application) setRoutes() {
+	a.router.Handle("/", http.FileServer(http.Dir("./html")))
+
 	// API specific routes
-	api := a.router.PathPrefix("/v1").Subrouter()
+	api := a.router.PathPrefix("/api/v1").Subrouter()
 
 	// [POST] /api/v1/notification
 	api.HandleFunc("/notification", PostNotification).
@@ -56,6 +78,10 @@ func (a *Application) setRoutes() {
 	// [GET] /api/v1/notification/{id}
 	api.HandleFunc("/notification/{id}", FindNotification).
 		Methods("GET")
+
+	// [PUT] /api/v1/notification/{id}
+	api.HandleFunc("/notification/{id}", PutNotification).
+		Methods("PUT")
 
 	// [GET] /api/v1/notification
 	api.HandleFunc("/notification", GetNotification).
