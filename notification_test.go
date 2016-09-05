@@ -92,3 +92,71 @@ func TestPostNotificationBulk(t *testing.T) {
 
 	assert.Equal(t, 202, resp.StatusCode)
 }
+
+// Test that delete returns 202
+func TestDeleteNotificationSuccess(t *testing.T) {
+	n := &Notification{
+		Message: "Testy",
+	}
+
+	App.db.Create(n)
+
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [DELETE] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 202, resp.StatusCode)
+}
+
+// Test that delete endpoint returns 404 if not found
+func TestDeleteNotificationNotFound(t *testing.T) {
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/notification/hdhdsjh", server.URL), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [DELETE] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 404, resp.StatusCode)
+}
+
+// Test that get returns object and 200
+func TestGetNotificationSuccess(t *testing.T) {
+	n := &Notification{
+		Message: "Test GET",
+	}
+
+	App.db.Create(n)
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [GET] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	var o Notification
+
+	json.NewDecoder(resp.Body).Decode(&o)
+
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, "Test GET", o.Message)
+}
+
+func TestGetNotificationNotFound(t *testing.T) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification/not-found", server.URL), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [GET] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 404, resp.StatusCode)
+}

@@ -27,14 +27,20 @@ func PostNotifications(w http.ResponseWriter, r *http.Request) {
 	WriteResponseHeader(w, 202)
 }
 
+// Endpoint to delete notifications
+// [DELETE] /api/v1/notification/{id}
 func DeleteNotification(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+	var n Notification
 
-	if err := App.db.Where("ID = ?", params["id"]).Or(&Notification{ExtId: params["id"]}).Delete(&Notification{}).Error; err != nil {
+	err := App.db.Where(&Notification{ExtId: params["id"]}).Find(&n).Error
+
+	if err != nil {
 		WriteResponse(w, 404, &Response{Error: "Notification not found"})
 		return
 	}
 
+	App.db.Delete(&n)
 	WriteResponseHeader(w, 202)
 }
 
