@@ -21,7 +21,7 @@ type Application struct {
 
 // Creates a new application and returns the pointer value
 func NewApp(port string, dbName string) *Application {
-	db, err := gorm.Open("sqlite3", fmt.Sprintf("/tmp/%s.db", dbName))
+	db, err := gorm.Open("sqlite3", fmt.Sprintf("tmp/%s.db", dbName))
 
 	if err != nil {
 		panic(err)
