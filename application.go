@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -19,8 +20,8 @@ type Application struct {
 }
 
 // Creates a new application and returns the pointer value
-func NewApp(port string) *Application {
-	db, err := gorm.Open("sqlite3", "/tmp/test.db")
+func NewApp(port string, dbName string) *Application {
+	db, err := gorm.Open("sqlite3", fmt.Sprintf("/tmp/%s.db", dbName))
 
 	if err != nil {
 		panic(err)
