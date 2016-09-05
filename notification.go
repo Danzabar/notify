@@ -119,12 +119,7 @@ func GetNotification(w http.ResponseWriter, r *http.Request) {
 	var n []Notification
 
 	App.db.Find(&n)
-	jsonStr, err := json.Marshal(&n)
-
-	if err != nil {
-		WriteResponse(w, 500, &Response{Error: "Unable to marshal models"})
-		return
-	}
+	jsonStr, _ := json.Marshal(&n)
 
 	WriteResponseHeader(w, 200)
 	w.Write(jsonStr)
