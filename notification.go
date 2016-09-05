@@ -43,8 +43,7 @@ func DeleteNotification(w http.ResponseWriter, r *http.Request) {
 func PostNotification(w http.ResponseWriter, r *http.Request) {
 	var n Notification
 
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&n)
+	err := json.NewDecoder(r.Body).Decode(&n)
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
