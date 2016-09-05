@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 )
 
@@ -16,13 +15,14 @@ func PostNotifications(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
-		log.Println(err)
 		return
 	}
 
-	for _, r := range n {
-		App.db.Create(&r)
-	}
+	go func() {
+		for _, r := range n {
+			App.db.Create(&r)
+		}
+	}()
 
 	WriteResponseHeader(w, 202)
 }
@@ -47,13 +47,11 @@ func PostNotification(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
-		log.Println(err)
 		return
 	}
 
 	if err := App.db.Create(&n).Error; err != nil {
 		WriteResponse(w, 422, &Response{Error: "Unable to save notification"})
-		log.Println(err)
 		return
 	}
 

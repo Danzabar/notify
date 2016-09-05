@@ -59,3 +59,36 @@ func TestPostNotificationSuccess(t *testing.T) {
 	assert.Equal(t, true, n.Read)
 	assert.Equal(t, "test", n.Source)
 }
+
+// Tests that bad json values return a 400
+func TestPostNotificationBadJSON(t *testing.T) {
+	reqPayload := []byte(`{"test":}`)
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification", server.URL), bytes.NewReader(reqPayload))
+	req.Header.Set("Content-Type", "application/json")
+
+	if err != nil {
+		t.Fatal("Request failed [POST] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 400, resp.StatusCode)
+}
+
+// Test that bulk inserting returns 202
+func TestPostNotificationBulk(t *testing.T) {
+	reqPayload := []byte(`[{"message": "test1"},{"message":"test2"}]`)
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/bulk", server.URL), bytes.NewReader(reqPayload))
+
+	if err != nil {
+		t.Fatal("Request failed [POST] /api/v1/notification/bulk")
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 202, resp.StatusCode)
+}
