@@ -21,11 +21,7 @@ type Application struct {
 
 // Creates a new application and returns the pointer value
 func NewApp(port string, dbName string) *Application {
-	db, err := gorm.Open("sqlite3", fmt.Sprintf("tmp/%s.db", dbName))
-
-	if err != nil {
-		panic(err)
-	}
+	db, _ := gorm.Open("sqlite3", fmt.Sprintf("tmp/%s.db", dbName))
 
 	return &Application{
 		db:     db,
@@ -37,12 +33,7 @@ func NewApp(port string, dbName string) *Application {
 
 // Creates socket io connection
 func ConnectSocket() *socketio.Server {
-	sv, err := socketio.NewServer(nil)
-
-	if err != nil {
-		panic(err)
-	}
-
+	sv, _ := socketio.NewServer(nil)
 	return sv
 }
 
