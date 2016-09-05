@@ -164,6 +164,7 @@ func TestGetNotificationSuccess(t *testing.T) {
 	assert.Equal(t, "Test GET", o.Message)
 }
 
+// Test that get returns 404 if not found
 func TestGetNotificationNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification/not-found", server.URL), nil)
 
@@ -174,4 +175,27 @@ func TestGetNotificationNotFound(t *testing.T) {
 	resp, _ := http.DefaultClient.Do(req)
 
 	assert.Equal(t, 404, resp.StatusCode)
+}
+
+// Test that put updates object and returns 200
+func TestPutNotificationSuccess(t *testing.T) {
+	n := &Notification{Message: "PUTTEST"}
+	reqPayload := []byte(`{"message":"a new message"}`)
+
+	App.db.Create(n)
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), bytes.NewReader(reqPayload))
+
+	if err != nil {
+		t.Fatal("Request failed [PUT] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	var o Notification
+
+	json.NewDecoder(resp.Body).Decode(&o)
+
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, "a new message", o.Message)
 }
