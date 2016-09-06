@@ -32,6 +32,7 @@ func TestGetTagReturns200(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+// Test post endpoint success
 func TestPostTagSuccess(t *testing.T) {
 	reqPayload := []byte(`{"name":"test1"}`)
 
@@ -49,4 +50,46 @@ func TestPostTagSuccess(t *testing.T) {
 
 	assert.Equal(t, 200, resp.StatusCode)
 	assert.Equal(t, "test1", tag.Name)
+}
+
+// Test that bad json returns 400
+func TestPostTagBadJson(t *testing.T) {
+	reqPayload := []byte(`{"test":}`)
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/tag", server.URL), bytes.NewReader(reqPayload))
+
+	if err != nil {
+		t.Fatal("Request failed [POST] /api/v1/tag")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 400, resp.StatusCode)
+}
+
+func TestFindTagSuccess(t *testing.T) {
+	tag := &Tag{Name: "findme"}
+	App.db.Create(tag)
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/tag/%s", server.URL, tag.ExtId), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [GET] /api/v1/tag/{id}")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
+func TestFindTagNotFound(t *testing.T) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/tag/not-found", server.URL), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [GET] /api/v1/tag/{id}")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 404, resp.StatusCode)
 }

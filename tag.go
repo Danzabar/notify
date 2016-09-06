@@ -6,12 +6,14 @@ import (
 	"net/http"
 )
 
+// Endpoint to find a tag
+// [GET] /api/v1/tag/{id}
 func FindTag(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	var t Tag
 
-	if err := App.db.Where("ID = ?", params["id"]).First(&t).Error; err != nil {
+	if err := App.db.Where(&Tag{ExtId: params["id"]}).First(&t).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Tag not found"})
 		return
 	}
@@ -21,6 +23,8 @@ func FindTag(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonStr)
 }
 
+// Endpoint to post a new tag
+// [POST] /api/v1/tag
 func PostTag(w http.ResponseWriter, r *http.Request) {
 	var t Tag
 
@@ -31,16 +35,15 @@ func PostTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := App.db.Where(t).FirstOrCreate(&t).Error; err != nil {
-		WriteResponse(w, 422, &Response{Error: "Unable to save tag"})
-		return
-	}
+	App.db.Where(t).FirstOrCreate(&t)
 
 	jsonStr, _ := json.Marshal(&t)
 	WriteResponseHeader(w, 200)
 	w.Write(jsonStr)
 }
 
+// Endpoint to get tags
+// [GET] /api/v1/tag
 func GetTag(w http.ResponseWriter, r *http.Request) {
 	var t []Tag
 
