@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 )
 
 // Rest Response contract
@@ -18,12 +17,6 @@ type Response struct {
 
 // Serializes the data in the Response struct
 func (r *Response) Serialize() []byte {
-	jsonResp, err := json.Marshal(r)
-
-	if err != nil {
-		log.Println(err)
-		return []byte("")
-	}
-
+	jsonResp, _ := json.Marshal(r)
 	return jsonResp
 }

@@ -199,3 +199,33 @@ func TestPutNotificationSuccess(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 	assert.Equal(t, "a new message", o.Message)
 }
+
+// Test that a put on an unknown notification returns a 404
+func TestPutNotificationNotFound(t *testing.T) {
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/notification/not-found", server.URL), nil)
+
+	if err != nil {
+		t.Fatal("Request failed [PUT] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 404, resp.StatusCode)
+}
+
+func TestPutNotificationBadJson(t *testing.T) {
+	n := &Notification{Message: "PUTJSONTEST"}
+	reqPayload := []byte(`{"test":}`)
+
+	App.db.Create(n)
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), bytes.NewReader(reqPayload))
+
+	if err != nil {
+		t.Fatal("Request failed [PUT] /api/v1/notification")
+	}
+
+	resp, _ := http.DefaultClient.Do(req)
+
+	assert.Equal(t, 400, resp.StatusCode)
+}
