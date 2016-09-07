@@ -55,8 +55,6 @@ func (a *Application) Run() {
 
 // Creates the Routes
 func (a *Application) setRoutes() {
-	a.router.Handle("/", http.FileServer(http.Dir("./html")))
-
 	// API specific routes
 	api := a.router.PathPrefix("/api/v1").Subrouter()
 
