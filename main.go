@@ -16,7 +16,7 @@ func main() {
 
 	flag.Parse()
 
-	App := NewApp(":8080", *dbDriver, *dbCreds)
+	App = NewApp(":8080", *dbDriver, *dbCreds)
 
 	// Run Migrations
 	if *migrate {
