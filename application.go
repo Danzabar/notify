@@ -42,6 +42,14 @@ func ConnectSocket() *socketio.Server {
 	return sv
 }
 
+// Handler to serve socket connection while added access control
+func (a *Application) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
+
+	App.server.ServeHTTP(w, r)
+}
+
 // Starts the Application and creates a listener
 func (a *Application) Run() {
 	a.setRoutes()
@@ -51,7 +59,7 @@ func (a *Application) Run() {
 		so.Join("notify")
 	})
 
-	http.Handle("/socket.io/", a.server)
+	http.Handle("/socket.io/", App)
 	http.Handle("/", a.router)
 	log.Println("Starting Web Server on " + a.port)
 	log.Fatal(http.ListenAndServe(a.port, nil))
