@@ -16,7 +16,7 @@ var (
 
 // Initialise Application
 func init() {
-	App = NewApp("5000", "test")
+	App = NewApp("5000", "sqlite3", "/tmp/test.db")
 	App.setRoutes()
 
 	// Make sure database migration is up to date

@@ -11,7 +11,10 @@ var App *Application
 // Main execution
 func main() {
 	migrate := flag.Bool("m", false, "Runs migrations before running server")
-	App = NewApp(":8080", "main")
+	dbDriver := flag.String("driver", "sqlite3", "The database driver notify should use")
+	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
+
+	App = NewApp(":8080", *dbDriver, *dbCreds)
 
 	flag.Parse()
 

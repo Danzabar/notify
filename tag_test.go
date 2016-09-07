@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	App = NewApp("5000", "test")
+	App = NewApp("5000", "sqlite3", "/tmp/test.db")
 	App.setRoutes()
 
 	Migrate()

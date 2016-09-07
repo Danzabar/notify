@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"log"
 	"net/http"
@@ -20,8 +21,8 @@ type Application struct {
 }
 
 // Creates a new application and returns the pointer value
-func NewApp(port string, dbName string) *Application {
-	db, _ := gorm.Open("sqlite3", fmt.Sprintf("tmp/%s.db", dbName))
+func NewApp(port string, dbDriver string, dbCreds string) *Application {
+	db, _ := gorm.Open(dbDriver, dbCreds)
 
 	return &Application{
 		db:     db,
