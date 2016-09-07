@@ -14,9 +14,9 @@ func main() {
 	dbDriver := flag.String("driver", "sqlite3", "The database driver notify should use")
 	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
 
-	App = NewApp(":8080", *dbDriver, *dbCreds)
-
 	flag.Parse()
+
+	App := NewApp(":8080", *dbDriver, *dbCreds)
 
 	// Run Migrations
 	if *migrate {

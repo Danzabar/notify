@@ -22,7 +22,11 @@ type Application struct {
 
 // Creates a new application and returns the pointer value
 func NewApp(port string, dbDriver string, dbCreds string) *Application {
-	db, _ := gorm.Open(dbDriver, dbCreds)
+	db, err := gorm.Open(dbDriver, dbCreds)
+
+	if err != nil {
+		panic(err)
+	}
 
 	return &Application{
 		db:     db,
