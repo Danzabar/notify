@@ -11,11 +11,11 @@ type Tag struct {
 	gorm.Model
 
 	// The Tag Name
-	Name string `json:"name"`
+	Name string `gorm:"not null" json:"name"`
 	// The source system
 	Source string `json:"source"`
 	// External ID
-	ExtId string `json:"extid"`
+	ExtId string `gorm:"unique" json:"extid"`
 }
 
 // Tag Before Create
@@ -36,11 +36,11 @@ type Notification struct {
 	gorm.Model
 
 	// The message of the notification
-	Message string `gorm:"type:text" json:"message"`
+	Message string `gorm:"type:text;not null" json:"message"`
 	// Any action that should be taken on this notification
 	Action string `json:"action"`
 	// The External ID
-	ExtId string `json:"extid"`
+	ExtId string `gorm:"unique" json:"extid"`
 	// Source system
 	Source string `json:"source"`
 	// Flag for read
