@@ -57,12 +57,27 @@ func (a *Application) Run() {
 	a.server.On("connection", func(so socketio.Socket) {
 		a.socket = so
 		so.Join("notify")
+		// We need to send notifications and tags on connect
+		so.Emit("load", a.OnSocketLoad)
 	})
 
 	http.Handle("/socket.io/", App)
 	http.Handle("/", a.router)
 	log.Println("Starting Web Server on " + a.port)
 	log.Fatal(http.ListenAndServe(a.port, nil))
+}
+
+// Fetches the latest notifications and tags and returns a json response
+func (a *Application) OnSocketLoad() []byte {
+	var t []Tag
+	var n []Notification
+
+	App.db.Find(&t)
+	App.db.Limit(50).Order("created_at desc").Find(&n)
+
+	p := &SocketLoadPayload{n, t}
+
+	return p.Serialize()
 }
 
 // Creates the Routes

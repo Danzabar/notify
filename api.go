@@ -20,3 +20,14 @@ func (r *Response) Serialize() []byte {
 	jsonResp, _ := json.Marshal(r)
 	return jsonResp
 }
+
+// Payload for the socket load event
+type SocketLoadPayload struct {
+	Notifications []Notification `json:"notifications,omitempty"`
+	Tags          []Tag          `json:"tags,omitempty"`
+}
+
+func (s *SocketLoadPayload) Serialize() []byte {
+	jsonResp, _ := json.Marshal(s)
+	return jsonResp
+}
