@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/influxdata/influxdb/uuid"
 	"github.com/jinzhu/gorm"
+	"github.com/leebenson/conform"
 )
 
 // Tag Model
@@ -11,9 +12,9 @@ type Tag struct {
 	gorm.Model
 
 	// The Tag Name
-	Name string `gorm:"not null" json:"name"`
+	Name string `gorm:"not null" json:"name" conform:"name"`
 	// The source system
-	Source string `json:"source"`
+	Source string `json:"source" conform:"slug"`
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
 }
@@ -23,6 +24,8 @@ func (t *Tag) BeforeCreate() {
 	// Create UUID On create
 	u := uuid.TimeUUID()
 	t.ExtId = u.String()
+
+	conform.Strings(t)
 }
 
 func (t *Tag) AfterCreate() {
@@ -36,13 +39,13 @@ type Notification struct {
 	gorm.Model
 
 	// The message of the notification
-	Message string `gorm:"type:text;not null" json:"message"`
+	Message string `gorm:"type:text;not null" json:"message" conform:"ucfirst,trim"`
 	// Any action that should be taken on this notification
 	Action string `json:"action"`
 	// The External ID
 	ExtId string `gorm:"unique" json:"extid"`
 	// Source system
-	Source string `json:"source"`
+	Source string `json:"source" conform:"slug"`
 	// Flag for read
 	Read bool `json:"read"`
 	// List of related Tags
@@ -54,6 +57,8 @@ func (n *Notification) BeforeCreate() {
 	// Create UUID on create
 	u := uuid.TimeUUID()
 	n.ExtId = u.String()
+
+	conform.Strings(n)
 }
 
 func (n *Notification) AfterCreate() {
