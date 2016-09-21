@@ -47,7 +47,9 @@ func PostTag(w http.ResponseWriter, r *http.Request) {
 func GetTag(w http.ResponseWriter, r *http.Request) {
 	var t []Tag
 
-	App.db.Find(&t)
+	p := GetPaginationFromRequest(r)
+
+	App.db.Limit(p.Limit).Offset(p.Offset).Find(&t)
 	jsonStr, _ := json.Marshal(&t)
 
 	WriteResponseHeader(w, 200)

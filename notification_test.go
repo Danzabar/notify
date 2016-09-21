@@ -76,6 +76,19 @@ func TestPostNotificationBadJSON(t *testing.T) {
 	assert.Equal(t, 400, resp.StatusCode)
 }
 
+func TestPostNotificationValidation(t *testing.T) {
+	reqPayload := []byte(`{"message":"test"}`)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification", server.URL), bytes.NewReader(reqPayload))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 400, resp.StatusCode)
+}
+
 // Test that bulk inserting returns 202
 func TestPostNotificationBulk(t *testing.T) {
 	reqPayload := []byte(`[{"message": "test1"},{"message":"test2"}]`)
@@ -179,7 +192,7 @@ func TestGetNotificationNotFound(t *testing.T) {
 
 // Test that put updates object and returns 200
 func TestPutNotificationSuccess(t *testing.T) {
-	n := &Notification{Message: "PUTTEST"}
+	n := &Notification{Message: "PUTTEST", Source: "Test"}
 	reqPayload := []byte(`{"message":"a new message"}`)
 
 	App.db.Create(n)
@@ -198,6 +211,23 @@ func TestPutNotificationSuccess(t *testing.T) {
 
 	assert.Equal(t, 200, resp.StatusCode)
 	assert.Equal(t, "a new message", o.Message)
+}
+
+func TestPutNotificationValidation(t *testing.T) {
+	n := &Notification{Source: "test"}
+	reqPayload := []byte(`{"message":""}`)
+
+	App.db.Create(n)
+
+	req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), bytes.NewReader(reqPayload))
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 400, resp.StatusCode)
 }
 
 // Test that a put on an unknown notification returns a 404

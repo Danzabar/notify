@@ -56,6 +56,13 @@ func PostNotification(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = Validator.Struct(&n)
+
+	if err != nil {
+		WriteValidationErrorResponse(w, err)
+		return
+	}
+
 	if err := App.db.Create(&n).Error; err != nil {
 		WriteResponse(w, 422, &Response{Error: "Unable to save notification"})
 		return
@@ -83,6 +90,13 @@ func PutNotification(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
+		return
+	}
+
+	err = Validator.Struct(&n)
+
+	if err != nil {
+		WriteValidationErrorResponse(w, err)
 		return
 	}
 

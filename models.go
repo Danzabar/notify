@@ -45,7 +45,7 @@ type Notification struct {
 	// The External ID
 	ExtId string `gorm:"unique" json:"extid"`
 	// Source system
-	Source string `json:"source" conform:"slug"`
+	Source string `json:"source" conform:"slug" validate:"required"`
 	// Flag for read
 	Read bool `json:"read"`
 	// List of related Tags
