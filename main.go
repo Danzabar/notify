@@ -2,11 +2,14 @@ package main
 
 import (
 	"flag"
+	"gopkg.in/go-playground/validator.v9"
 	"log"
 )
 
-// Global for Application
-var App *Application
+var (
+	App       *Application
+	Validator *validator.Validate
+)
 
 // Main execution
 func main() {

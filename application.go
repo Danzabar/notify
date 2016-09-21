@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"gopkg.in/go-playground/validator.v9"
 	"log"
 	"net/http"
 )
@@ -27,6 +28,8 @@ func NewApp(port string, dbDriver string, dbCreds string) *Application {
 	if err != nil {
 		panic(err)
 	}
+
+	Validator = validator.New()
 
 	return &Application{
 		db:     db,

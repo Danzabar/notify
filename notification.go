@@ -118,7 +118,9 @@ func FindNotification(w http.ResponseWriter, r *http.Request) {
 func GetNotification(w http.ResponseWriter, r *http.Request) {
 	var n []Notification
 
-	App.db.Find(&n)
+	p := GetPaginationFromRequest(r)
+
+	App.db.Limit(p.Limit).Offset(p.Offset).Find(&n)
 	jsonStr, _ := json.Marshal(&n)
 
 	WriteResponseHeader(w, 200)

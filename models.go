@@ -12,7 +12,7 @@ type Tag struct {
 	gorm.Model
 
 	// The Tag Name
-	Name string `gorm:"not null" json:"name" conform:"name"`
+	Name string `gorm:"not null" json:"name" conform:"name" validate:"required"`
 	// The source system
 	Source string `json:"source" conform:"slug"`
 	// External ID
@@ -39,7 +39,7 @@ type Notification struct {
 	gorm.Model
 
 	// The message of the notification
-	Message string `gorm:"type:text;not null" json:"message" conform:"ucfirst,trim"`
+	Message string `gorm:"type:text;not null" json:"message" conform:"ucfirst,trim" validate:"required"`
 	// Any action that should be taken on this notification
 	Action string `json:"action"`
 	// The External ID

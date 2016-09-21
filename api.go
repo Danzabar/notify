@@ -21,6 +21,15 @@ func (r *Response) Serialize() []byte {
 	return jsonResp
 }
 
+type ValidationResponse struct {
+	Errors map[string]string `json:"errors"`
+}
+
+func (v *ValidationResponse) Serialize() []byte {
+	jsonResp, _ := json.Marshal(v)
+	return jsonResp
+}
+
 // Payload for the socket load event
 type SocketLoadPayload struct {
 	Notifications []Notification `json:"notifications,omitempty"`

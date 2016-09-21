@@ -229,3 +229,27 @@ func TestPutNotificationBadJson(t *testing.T) {
 
 	assert.Equal(t, 400, resp.StatusCode)
 }
+
+func TestGetReturnsPaginatedList(t *testing.T) {
+	App.db.Delete(&Notification{})
+
+	for i := 0; i < 10; i++ {
+		n := &Notification{Message: fmt.Sprintf("test_%d", i)}
+		App.db.Create(n)
+	}
+
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification?pageSize=1&page=5", server.URL), nil)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var output []Notification
+	json.NewDecoder(resp.Body).Decode(&output)
+
+	assert.Equal(t, 200, resp.StatusCode)
+	assert.Equal(t, 1, len(output))
+	assert.Equal(t, "Test_4", output[0].Message)
+}
