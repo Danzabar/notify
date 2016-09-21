@@ -52,6 +52,20 @@ func TestPostTagSuccess(t *testing.T) {
 	assert.Equal(t, "Test", tag.Name)
 }
 
+func TestPostTagValidation(t *testing.T) {
+	reqPayload := []byte(`{"name":""}`)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/tag", server.URL), bytes.NewReader(reqPayload))
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 400, resp.StatusCode)
+}
+
 // Test that bad json returns 400
 func TestPostTagBadJson(t *testing.T) {
 	reqPayload := []byte(`{"test":}`)

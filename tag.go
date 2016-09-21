@@ -35,6 +35,13 @@ func PostTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = Validator.Struct(&t)
+
+	if err != nil {
+		WriteValidationErrorResponse(w, err)
+		return
+	}
+
 	App.db.Where(t).FirstOrCreate(&t)
 
 	jsonStr, _ := json.Marshal(&t)
