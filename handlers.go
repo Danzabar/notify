@@ -11,6 +11,11 @@ type Pagination struct {
 	Offset int
 }
 
+// Ping handler for service status
+func PingHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(`pong`))
+}
+
 // Method to write a REST response
 func WriteResponse(w http.ResponseWriter, code int, resp RestResponse) {
 	WriteResponseHeader(w, code)

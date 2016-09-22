@@ -85,6 +85,8 @@ func (a *Application) OnSocketLoad() []byte {
 
 // Creates the Routes
 func (a *Application) setRoutes() {
+	a.router.HandleFunc("/ping", PingHandler)
+
 	// API specific routes
 	api := a.router.PathPrefix("/api/v1").Subrouter()
 

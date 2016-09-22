@@ -1,10 +1,33 @@
 package main
 
 import (
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
+
+func init() {
+	App = NewApp(":5000", "sqlite3", "/tmp/test.db")
+	App.setRoutes()
+
+	Migrate()
+
+	server = httptest.NewServer(App.router)
+}
+
+func TestPingHandler(t *testing.T) {
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/ping", server.URL), nil)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 200, resp.StatusCode)
+}
 
 func TestPaginationOptions(t *testing.T) {
 	req1, _ := http.NewRequest("GET", "/test?pageSize=4&page=3", nil)
