@@ -38,6 +38,21 @@ func TestGetReturns200(t *testing.T) {
 	assert.Equal(t, 200, resp.StatusCode)
 }
 
+func TestGetSeperatesReadMessages(t *testing.T) {
+	App.db.Create(&Notification{Message: "Test1", Read: false})
+	App.db.Create(&Notification{Message: "Test2", Read: true})
+
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification?read=true", server.URL), nil)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 200, resp.StatusCode)
+}
+
 // Tests that you can successfully save a notification via the api
 func TestPostNotificationSuccess(t *testing.T) {
 

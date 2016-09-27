@@ -40,3 +40,8 @@ func (s *SocketLoadPayload) Serialize() []byte {
 	jsonResp, _ := json.Marshal(s)
 	return jsonResp
 }
+
+// Request sent from client socket to tell us which notifications have been read
+type NotificationRead struct {
+	Ids []string `json:"ids"`
+}

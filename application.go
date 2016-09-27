@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -10,6 +11,7 @@ import (
 	"gopkg.in/go-playground/validator.v9"
 	"log"
 	"net/http"
+	"strings"
 )
 
 // Application struct to keep our dependencies tight
@@ -76,11 +78,26 @@ func (a *Application) OnSocketLoad() []byte {
 	var n []Notification
 
 	App.db.Find(&t)
-	App.db.Limit(50).Order("created_at desc").Find(&n)
+	App.db.Limit(25).Order("created_at desc").Find(&n)
 
 	p := &SocketLoadPayload{n, t}
 
 	return p.Serialize()
+}
+
+func (a *Application) OnNotificationRead(msg string) []byte {
+	var n NotificationRead
+	r := &Response{}
+	err := json.NewDecoder(strings.NewReader(msg)).Decode(&n)
+
+	if err != nil {
+		r.Error = "Invalid json"
+		return r.Serialize()
+	}
+
+	App.db.Model(&Notification{}).Where("extId IN (?)", n.Ids).Updates(map[string]interface{}{"read": true})
+	r.Message = "Success"
+	return r.Serialize()
 }
 
 // Creates the Routes

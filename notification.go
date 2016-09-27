@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 )
 
 // Endpoint to bulk insert notifications
@@ -150,10 +151,15 @@ func FindNotification(w http.ResponseWriter, r *http.Request) {
 // [GET] /api/v1/notification
 func GetNotification(w http.ResponseWriter, r *http.Request) {
 	var n []Notification
+	hasRead, err := strconv.ParseBool(r.FormValue("read"))
+
+	if err != nil {
+		hasRead = false
+	}
 
 	p := GetPaginationFromRequest(r)
 
-	App.db.Limit(p.Limit).Offset(p.Offset).Find(&n)
+	App.db.Limit(p.Limit).Offset(p.Offset).Where(&Notification{Read: hasRead}).Find(&n)
 	jsonStr, _ := json.Marshal(&n)
 
 	WriteResponseHeader(w, 200)
