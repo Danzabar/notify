@@ -95,7 +95,7 @@ func (a *Application) OnNotificationRead(msg string) []byte {
 		return r.Serialize()
 	}
 
-	App.db.Model(&Notification{}).Where("extId IN (?)", n.Ids).Updates(map[string]interface{}{"read": true})
+	App.db.Model(&Notification{}).Where("ext_id IN (?)", n.Ids).Updates(map[string]interface{}{"read": true})
 	r.Message = "Success"
 	return r.Serialize()
 }

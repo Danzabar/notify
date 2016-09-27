@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -25,4 +26,18 @@ func TestSocketLoadEvent(t *testing.T) {
 	}
 
 	assert.Equal(t, true, len(p.Notifications) > 0)
+}
+
+func TestSocketReadEvent(t *testing.T) {
+	n := &Notification{Message: "A test read event"}
+	App.db.Create(n)
+
+	payload := []byte(fmt.Sprintf(`{"ids":["%s"]}`, n.ExtId))
+
+	App.OnNotificationRead(string(payload))
+
+	var out Notification
+	App.db.Where(&Notification{ExtId: n.ExtId}).First(&out)
+
+	assert.Equal(t, true, out.Read)
 }
