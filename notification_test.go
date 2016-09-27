@@ -283,3 +283,34 @@ func TestGetReturnsPaginatedList(t *testing.T) {
 	assert.Equal(t, 1, len(output))
 	assert.Equal(t, "Test_4", output[0].Message)
 }
+
+func TestPostReadNotificationSuccess(t *testing.T) {
+	n := &Notification{Message: "Test", Source: "Test"}
+	App.db.Create(n)
+
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/%s/read", server.URL, n.ExtId), nil)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var not Notification
+	App.db.Where(&Notification{ExtId: n.ExtId}).First(&not)
+
+	assert.Equal(t, 202, resp.StatusCode)
+	assert.Equal(t, true, not.Read)
+}
+
+func TestPostReadFail(t *testing.T) {
+	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/test-fhf/read", server.URL), nil)
+
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, 404, resp.StatusCode)
+}

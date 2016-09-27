@@ -27,6 +27,25 @@ func PostNotifications(w http.ResponseWriter, r *http.Request) {
 	WriteResponseHeader(w, 202)
 }
 
+// Endpoint to mark a notification as read
+// [POST] /api/v1/notification/{id}/read
+func PostReadNotification(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	n := &Notification{}
+
+	err := App.db.Where(&Notification{ExtId: params["id"]}).Find(n).Error
+
+	if err != nil {
+		WriteResponse(w, 404, &Response{Error: "Notification not found"})
+		return
+	}
+
+	n.Read = true
+	App.db.Save(n)
+
+	WriteResponseHeader(w, 202)
+}
+
 // Endpoint to delete notifications
 // [DELETE] /api/v1/notification/{id}
 func DeleteNotification(w http.ResponseWriter, r *http.Request) {

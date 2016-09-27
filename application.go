@@ -110,6 +110,10 @@ func (a *Application) setRoutes() {
 	api.HandleFunc("/notification/{id}", PutNotification).
 		Methods("PUT")
 
+	// [POST] /api/v1/notification/{id}/read
+	api.HandleFunc("/notification/{id}/read", PostReadNotification).
+		Methods("POST")
+
 	// [GET] /api/v1/notification
 	api.HandleFunc("/notification", GetNotification).
 		Methods("GET")
