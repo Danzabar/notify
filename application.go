@@ -64,6 +64,7 @@ func (a *Application) Run() {
 		so.Join("notify")
 		// We need to send notifications and tags on connect
 		so.Emit("load", a.OnSocketLoad)
+		so.On("notification:read", a.OnNotificationRead)
 	})
 
 	http.Handle("/socket.io/", App)
@@ -78,9 +79,16 @@ func (a *Application) OnSocketLoad() []byte {
 	var n []Notification
 
 	App.db.Find(&t)
-	App.db.Limit(25).Order("created_at desc").Find(&n)
+	App.db.
+		Where(&Notification{Read: false}).
+		Limit(25).
+		Order("created_at desc").
+		Find(&n)
 
-	p := &SocketLoadPayload{n, t}
+	p := &SocketLoadPayload{
+		Notifications: n,
+		Tags:          t,
+	}
 
 	return p.Serialize()
 }
@@ -98,6 +106,40 @@ func (a *Application) OnNotificationRead(msg string) []byte {
 	App.db.Model(&Notification{}).Where("ext_id IN (?)", n.Ids).Updates(map[string]interface{}{"read": true})
 	r.Message = "Success"
 	return r.Serialize()
+}
+
+func (a *Application) OnNotificationRefresh(msg string) []byte {
+	var r NotificationRefresh
+	err := json.NewDecoder(strings.NewReader(msg)).Decode(&r)
+
+	if err != nil {
+		r := &Response{Error: "Invalid json"}
+		return r.Serialize()
+	}
+
+	p := GetPaginationFromSocketRequest(&r)
+
+	var n []Notification
+	var c int
+
+	App.db.
+		Model(&Notification{}).
+		Where(&Notification{Read: false}).
+		Count(&c)
+
+	App.db.
+		Where(&Notification{Read: false}).
+		Limit(p.Limit).
+		Offset(p.Offset).
+		Find(&n)
+
+	resp := &SocketLoadPayload{
+		Notifications: n,
+		HasNext:       (c > (r.Page * p.Limit)),
+		HasPrev:       (p.Offset > 0),
+	}
+
+	return resp.Serialize()
 }
 
 // Creates the Routes

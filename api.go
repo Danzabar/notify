@@ -34,6 +34,8 @@ func (v *ValidationResponse) Serialize() []byte {
 type SocketLoadPayload struct {
 	Notifications []Notification `json:"notifications,omitempty"`
 	Tags          []Tag          `json:"tags,omitempty"`
+	HasNext       bool           `json:"hasNext,omitempty"`
+	HasPrev       bool           `json:"hasPrev,omitempty"`
 }
 
 func (s *SocketLoadPayload) Serialize() []byte {
@@ -44,4 +46,10 @@ func (s *SocketLoadPayload) Serialize() []byte {
 // Request sent from client socket to tell us which notifications have been read
 type NotificationRead struct {
 	Ids []string `json:"ids"`
+}
+
+// Request sent from client socket to refresh notifications by page
+type NotificationRefresh struct {
+	Page     int `json:"page"`
+	PageSize int `json:"pageSize"`
 }

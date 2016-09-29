@@ -42,22 +42,44 @@ func WriteValidationErrorResponse(w http.ResponseWriter, err error) {
 
 // Creates pagination options from given request
 func GetPaginationFromRequest(r *http.Request) *Pagination {
-	p := &Pagination{}
-
+	var l int
+	var o int
 	limit, err := strconv.ParseInt(r.FormValue("pageSize"), 10, 8)
 
 	if err != nil {
-		p.Limit = 50
+		l = 50
 	} else {
-		p.Limit = int(limit)
+		l = int(limit)
 	}
 
 	offset, err := strconv.ParseInt(r.FormValue("page"), 10, 8)
 
 	if err != nil {
-		offset = 1
+		o = 1
+	} else {
+		o = int(offset)
 	}
 
-	p.Offset = (int(offset) - 1) * p.Limit
+	return createPagination(l, o)
+}
+
+func GetPaginationFromSocketRequest(r *NotificationRefresh) *Pagination {
+	if r.Page == 0 {
+		r.Page = 1
+	}
+
+	if r.PageSize == 0 {
+		r.PageSize = 50
+	}
+
+	return createPagination(r.PageSize, r.Page)
+}
+
+func createPagination(limit int, offset int) *Pagination {
+	p := &Pagination{}
+
+	p.Limit = limit
+	p.Offset = (offset - 1) * p.Limit
+
 	return p
 }
