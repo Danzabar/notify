@@ -64,8 +64,10 @@ func (a *Application) Run() {
 		so.Join("notify")
 		// We need to send notifications and tags on connect
 		so.Emit("load", a.OnSocketLoad)
-		so.On("notification:read", a.OnNotificationRead)
 	})
+
+	a.server.On("notification:read", a.OnNotificationRead)
+	a.server.On("notification:refresh", a.OnNotificationRefresh)
 
 	http.Handle("/socket.io/", App)
 	http.Handle("/", a.router)
