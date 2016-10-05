@@ -62,8 +62,6 @@ func (a *Application) Run() {
 	a.server.On("connection", func(so socketio.Socket) {
 		a.socket = so
 		so.Join("notify")
-		// We need to send notifications and tags on connect
-		so.Emit("load", a.OnSocketLoad)
 	})
 
 	a.server.On("notification:read", a.OnNotificationRead)
@@ -75,48 +73,28 @@ func (a *Application) Run() {
 	log.Fatal(http.ListenAndServe(a.port, nil))
 }
 
-// Fetches the latest notifications and tags and returns a json response
-func (a *Application) OnSocketLoad() []byte {
-	var t []Tag
-	var n []Notification
-
-	App.db.Find(&t)
-	App.db.
-		Where(&Notification{Read: false}).
-		Limit(25).
-		Order("created_at desc").
-		Find(&n)
-
-	p := &SocketLoadPayload{
-		Notifications: n,
-		Tags:          t,
-	}
-
-	return p.Serialize()
-}
-
-func (a *Application) OnNotificationRead(msg string) []byte {
+func (a *Application) OnNotificationRead(msg string) string {
 	var n NotificationRead
 	r := &Response{}
 	err := json.NewDecoder(strings.NewReader(msg)).Decode(&n)
 
 	if err != nil {
 		r.Error = "Invalid json"
-		return r.Serialize()
+		return string(r.Serialize())
 	}
 
 	App.db.Model(&Notification{}).Where("ext_id IN (?)", n.Ids).Updates(map[string]interface{}{"read": true})
 	r.Message = "Success"
-	return r.Serialize()
+	return string(r.Serialize())
 }
 
-func (a *Application) OnNotificationRefresh(msg string) []byte {
+func (a *Application) OnNotificationRefresh(msg string) string {
 	var r NotificationRefresh
 	err := json.NewDecoder(strings.NewReader(msg)).Decode(&r)
 
 	if err != nil {
 		r := &Response{Error: "Invalid json"}
-		return r.Serialize()
+		return string(r.Serialize())
 	}
 
 	p := GetPaginationFromSocketRequest(&r)
@@ -141,7 +119,7 @@ func (a *Application) OnNotificationRefresh(msg string) []byte {
 		HasPrev:       (p.Offset > 0),
 	}
 
-	return resp.Serialize()
+	return string(resp.Serialize())
 }
 
 // Creates the Routes

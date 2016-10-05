@@ -1,10 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
@@ -14,27 +14,13 @@ func init() {
 	Migrate()
 }
 
-func TestSocketLoadEvent(t *testing.T) {
-	var p SocketLoadPayload
-	App.db.Create(&Notification{Message: "Test"})
-
-	resp := App.OnSocketLoad()
-	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&p)
-
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, true, len(p.Notifications) > 0)
-}
-
 func TestSocketReadEvent(t *testing.T) {
 	n := &Notification{Message: "A test read event"}
 	App.db.Create(n)
 
-	payload := []byte(fmt.Sprintf(`{"ids":["%s"]}`, n.ExtId))
+	payload := fmt.Sprintf(`{"ids":["%s"]}`, n.ExtId)
 
-	App.OnNotificationRead(string(payload))
+	App.OnNotificationRead(payload)
 
 	var out Notification
 	App.db.Where(&Notification{ExtId: n.ExtId}).First(&out)
@@ -48,7 +34,7 @@ func TestSocketReadEventBadJson(t *testing.T) {
 
 	resp := App.OnNotificationRead(payload)
 
-	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&r)
+	err := json.NewDecoder(strings.NewReader(resp)).Decode(&r)
 
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +51,7 @@ func TestSocketRefreshEvent(t *testing.T) {
 
 	resp := App.OnNotificationRefresh(payload)
 
-	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&r)
+	err := json.NewDecoder(strings.NewReader(resp)).Decode(&r)
 
 	if err != nil {
 		t.Fatal(err)
@@ -84,7 +70,7 @@ func TestSocketRefreshEventWithNext(t *testing.T) {
 	payload := `{"page": 1, "pageSize": 1}`
 
 	resp := App.OnNotificationRefresh(payload)
-	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&r)
+	err := json.NewDecoder(strings.NewReader(resp)).Decode(&r)
 
 	if err != nil {
 		t.Fatal(err)
@@ -105,7 +91,7 @@ func TestSocketRefreshEventWithPrev(t *testing.T) {
 	payload := `{"page":2, "pageSize": 2}`
 
 	resp := App.OnNotificationRefresh(payload)
-	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&r)
+	err := json.NewDecoder(strings.NewReader(resp)).Decode(&r)
 
 	if err != nil {
 		t.Fatal(err)
