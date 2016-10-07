@@ -30,7 +30,6 @@ func (t *Tag) BeforeCreate() {
 
 func (t *Tag) AfterCreate() {
 	jsonStr, _ := json.Marshal(t)
-
 	App.server.BroadcastTo("notify", "new:tag", string(jsonStr))
 }
 
@@ -63,7 +62,19 @@ func (n *Notification) BeforeCreate() {
 
 func (n *Notification) AfterCreate() {
 	jsonStr, _ := json.Marshal(n)
-
-	// Broadcast creation to socket listeners
 	App.server.BroadcastTo("notify", "new:notify", string(jsonStr))
+}
+
+type AlertGroup struct {
+	gorm.Model
+
+	// The Group Name
+	Name string `gorm:"unique" json:"name" validate:"required" conform:"name"`
+	// External ID
+	ExtId string `gorm:"unique" json:"extId"`
+}
+
+func (a *AlertGroup) BeforeCreate() {
+	a.ExtId = uuid.TimeUUID().String()
+	conform.Strings(a)
 }
