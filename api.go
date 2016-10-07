@@ -32,10 +32,10 @@ func (v *ValidationResponse) Serialize() []byte {
 
 // Payload for the socket load event
 type SocketLoadPayload struct {
-	Notifications []Notification `json:"notifications,omitempty"`
-	Tags          []Tag          `json:"tags,omitempty"`
-	HasNext       bool           `json:"hasNext,omitempty"`
-	HasPrev       bool           `json:"hasPrev,omitempty"`
+	Notifications []Notification `json:"notifications"`
+	Tags          []Tag          `json:"tags"`
+	HasNext       bool           `json:"hasNext"`
+	HasPrev       bool           `json:"hasPrev"`
 }
 
 func (s *SocketLoadPayload) Serialize() []byte {
