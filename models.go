@@ -75,7 +75,7 @@ type AlertGroup struct {
 	Name       string      `gorm:"unique" json:"name" validate:"required" conform:"name"`
 	ExtId      string      `gorm:"unique" json:"extId"`
 	Type       string      `json:"type"`
-	Recipients []Recipient `json:"recipients,omitempty"`
+	Recipients []Recipient `gorm:"many2many:group_recipients" json:"recipients"`
 }
 
 func (a *AlertGroup) BeforeCreate() {
@@ -86,7 +86,12 @@ func (a *AlertGroup) BeforeCreate() {
 type Recipient struct {
 	gorm.Model
 
-	Name  string `json:"name" validate:"required" conform:"name"`
+	Name  string `json:"name" conform:"name"`
 	Email string `json:"email"`
 	ExtId string `gorm:"unique" json:"extId"`
+}
+
+func (r *Recipient) BeforeCreate() {
+	r.ExtId = uuid.TimeUUID().String()
+	conform.Strings(r)
 }

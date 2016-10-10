@@ -35,4 +35,6 @@ func main() {
 func Migrate() {
 	App.db.AutoMigrate(&Tag{})
 	App.db.AutoMigrate(&Notification{})
+	App.db.AutoMigrate(&AlertGroup{})
+	App.db.AutoMigrate(&Recipient{})
 }

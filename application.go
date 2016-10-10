@@ -129,6 +129,10 @@ func (a *Application) setRoutes() {
 	// API specific routes
 	api := a.router.PathPrefix("/api/v1").Subrouter()
 
+	// [POST] /api/v1/alert-group
+	api.HandleFunc("/alert-group", PostAlertGroup).
+		Methods("POST")
+
 	// [POST] /api/v1/notification
 	api.HandleFunc("/notification", PostNotification).
 		Methods("POST")
