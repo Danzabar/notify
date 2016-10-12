@@ -36,18 +36,35 @@ func PostAlertGroup(w http.ResponseWriter, r *http.Request) {
 func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var a AlertGroup
+	var u AlertGroup
 
 	if err := App.db.Where("ext_id = ?", params["id"]).First(&a).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Alert group not found"})
 		return
 	}
 
-	err := Validator.Struct(&a)
+	err := json.NewDecoder(r.Body).Decode(&u)
+
+	if err != nil {
+		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
+		return
+	}
+
+	err = Validator.Struct(&u)
 
 	if err != nil {
 		WriteValidationErrorResponse(w, err)
 		return
 	}
+
+	if err := App.db.Model(&a).Updates(u).Error; err != nil {
+		WriteResponse(w, 422, &Response{Error: "Unable to save entity"})
+		return
+	}
+
+	jsonStr, _ := json.Marshal(&a)
+	WriteResponseHeader(w, 200)
+	w.Write(jsonStr)
 }
 
 // [GET] /api/v1/alert-group
@@ -62,27 +79,12 @@ func GetAlertGroup(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonStr)
 }
 
-// [GET] /api/v1/alert-group/{id}
-func FindAlertGroup(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	var a AlertGroup
-
-	if err := App.db.Where("ext_id = ?", params["id"]).First(&a).Error; err != nil {
-		WriteResponse(w, 404, &Response{Error: "Alert group not found"})
-		return
-	}
-
-	jsonStr, _ := json.Marshal(&a)
-	WriteResponseHeader(w, 200)
-	w.Write(jsonStr)
-}
-
 // [DELETE] /api/v1/alert-group/{id}
 func DeleteAlertGroup(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var a AlertGroup
 
-	if err := App.db.Where("ext_id = ?", params["id"]).First(a).Error; err != nil {
+	if err := App.db.Where("ext_id = ?", params["id"]).First(&a).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Alert group not found"})
 		return
 	}

@@ -133,6 +133,18 @@ func (a *Application) setRoutes() {
 	api.HandleFunc("/alert-group", PostAlertGroup).
 		Methods("POST")
 
+	// [GET] /api/v1/alert-group
+	api.HandleFunc("/alert-group", GetAlertGroup).
+		Methods("GET")
+
+	// [PUT] /api/v1/alert-group/{id}
+	api.HandleFunc("/alert-group/{id}", PutAlertGroup).
+		Methods("PUT")
+
+	// [DELETE] /api/v1/alert-group/{id}
+	api.HandleFunc("/alert-group/{id}", DeleteAlertGroup).
+		Methods("DELETE")
+
 	// [POST] /api/v1/notification
 	api.HandleFunc("/notification", PostNotification).
 		Methods("POST")
