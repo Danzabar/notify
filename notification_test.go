@@ -104,38 +104,6 @@ func TestPostNotificationValidation(t *testing.T) {
 	assert.Equal(t, 400, resp.StatusCode)
 }
 
-// Test that bulk inserting returns 202
-func TestPostNotificationBulk(t *testing.T) {
-	reqPayload := []byte(`[{"message": "test1"},{"message":"test2"}]`)
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/bulk", server.URL), bytes.NewReader(reqPayload))
-
-	if err != nil {
-		t.Fatal("Request failed [POST] /api/v1/notification/bulk")
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, _ := http.DefaultClient.Do(req)
-
-	assert.Equal(t, 202, resp.StatusCode)
-}
-
-// Test that bulk endpoint returns 400 when bad json is passed
-func TestPostNotificationBulkBadJson(t *testing.T) {
-	reqPayload := []byte(`[{"test":}]`)
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/bulk", server.URL), bytes.NewReader(reqPayload))
-
-	if err != nil {
-		t.Fatal("Request failed [POST] /api/v1/notification/bulk")
-	}
-
-	resp, _ := http.DefaultClient.Do(req)
-
-	assert.Equal(t, 400, resp.StatusCode)
-}
-
 // Test that delete returns 202
 func TestDeleteNotificationSuccess(t *testing.T) {
 	n := &Notification{

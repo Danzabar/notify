@@ -7,27 +7,6 @@ import (
 	"strconv"
 )
 
-// Endpoint to bulk insert notifications
-// [POST] /api/v1/notification/bulk
-func PostNotifications(w http.ResponseWriter, r *http.Request) {
-	var n []Notification
-
-	err := json.NewDecoder(r.Body).Decode(&n)
-
-	if err != nil {
-		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
-		return
-	}
-
-	go func() {
-		for _, r := range n {
-			App.db.Create(&r)
-		}
-	}()
-
-	WriteResponseHeader(w, 202)
-}
-
 // Endpoint to mark a notification as read
 // [POST] /api/v1/notification/{id}/read
 func PostReadNotification(w http.ResponseWriter, r *http.Request) {

@@ -2,11 +2,26 @@ package main
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 // Rest Response contract
 type RestResponse interface {
 	Serialize() []byte
+}
+
+type RestRequest interface {
+	Deserialize(r *http.Request)
+}
+
+// Request Body for Notification Endpoint
+type NotificationRequest struct {
+	Notifications []Notification `json:"notifications"`
+	Tags          []Tag          `json:"tags"`
+}
+
+func (n *NotificationRequest) Deserialize(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(n)
 }
 
 // Standard response struct
