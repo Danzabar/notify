@@ -37,7 +37,7 @@ func TestPostAlertGroupSuccess(t *testing.T) {
 	}
 
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, "Test", a.Name)
+	assert.Equal(t, "test", a.Name)
 	assert.Equal(t, "mail", a.Type)
 }
 

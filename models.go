@@ -47,12 +47,10 @@ type Notification struct {
 	Source string `json:"source" conform:"slug" validate:"required"`
 	// Flag for read
 	Read bool `json:"read"`
-	// The Alert group to use for notification
-	AlertGroup AlertGroup `json:"alertGroup,omitempty" validate:"-"`
 	// Boolean flag for when the schedule picks it up
 	Alerted bool `json:"alerted"`
 	// List of related Tags
-	Tags []Tag `json:"tags,omitempty"`
+	Tags []Tag `gorm:"many2many:notification_tags" json:"tags,omitempty"`
 }
 
 // Notification Before Create
@@ -72,9 +70,10 @@ func (n *Notification) AfterCreate() {
 type AlertGroup struct {
 	gorm.Model
 
-	Name       string      `gorm:"unique" json:"name" validate:"required" conform:"name"`
+	Name       string      `gorm:"unique" json:"name" validate:"required"`
 	ExtId      string      `gorm:"unique" json:"extId"`
 	Type       string      `json:"type"`
+	Tags       []Tag       `gorm:"many2many:group_tags" json:"tags"`
 	Recipients []Recipient `gorm:"many2many:group_recipients" json:"recipients"`
 }
 
