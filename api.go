@@ -11,7 +11,7 @@ type RestResponse interface {
 }
 
 type RestRequest interface {
-	Deserialize(r *http.Request)
+	Deserialize(r *http.Request) error
 }
 
 // Request Body for Notification Endpoint
@@ -22,6 +22,17 @@ type NotificationRequest struct {
 
 func (n *NotificationRequest) Deserialize(r *http.Request) error {
 	return json.NewDecoder(r.Body).Decode(n)
+}
+
+// Request Body for Alert groups
+type AlertGroupRequest struct {
+	Group      AlertGroup  `json:"groups"`
+	Recipients []Recipient `json:"recipients"`
+	Tags       []Tag       `json:"tags"`
+}
+
+func (a *AlertGroupRequest) Deserialize(r *http.Request) error {
+	return json.NewDecoder(r.Body).Decode(a)
 }
 
 // Standard response struct
