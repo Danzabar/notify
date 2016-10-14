@@ -20,7 +20,13 @@ func init() {
 
 func TestPostAlertGroupSuccess(t *testing.T) {
 	App.db.Unscoped().Delete(&AlertGroup{})
-	payload := []byte(`{"name": "test","type":"mail"}`)
+	r := &AlertGroupRequest{
+		Group: AlertGroup{
+			Name: "test",
+			Type: "mail",
+		},
+	}
+	payload, _ := json.Marshal(r)
 
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/alert-group", server.URL), bytes.NewReader(payload))
 	resp, err := http.DefaultClient.Do(req)
@@ -71,7 +77,13 @@ func TestPostAlertGroupUnProcessable(t *testing.T) {
 	App.db.Delete(&AlertGroup{})
 	App.db.Create(&AlertGroup{Name: "Test-Group"})
 
-	payload := []byte(`{"name": "Test-Group"}`)
+	r := &AlertGroupRequest{
+		Group: AlertGroup{
+			Name: "Test-Group",
+			Type: "mail",
+		},
+	}
+	payload, _ := json.Marshal(r)
 
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/alert-group", server.URL), bytes.NewReader(payload))
 	resp, err := http.DefaultClient.Do(req)

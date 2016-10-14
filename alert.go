@@ -8,26 +8,40 @@ import (
 
 // [POST] /api/v1/alert-group
 func PostAlertGroup(w http.ResponseWriter, r *http.Request) {
-	var a AlertGroup
-
-	if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
+	a := &AlertGroupRequest{}
+	if err := a.Deserialize(r); err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
 		return
 	}
 
-	err := Validator.Struct(&a)
+	err := Validator.Struct(&a.Group)
 
 	if err != nil {
 		WriteValidationErrorResponse(w, err)
 		return
 	}
 
-	if err := App.db.Create(&a).Error; err != nil {
+	tx := App.db.Begin()
+
+	if err := tx.Create(&a.Group).Error; err != nil {
 		WriteResponse(w, 422, &Response{Error: "Unable to save entity"})
+		tx.Rollback()
 		return
 	}
 
-	jsonStr, _ := json.Marshal(&a)
+	for k := range a.Recipients {
+		tx.Where(&a.Recipients[k]).FirstOrCreate(&a.Recipients[k])
+		tx.Model(&a.Group).Association("Recipients").Append(&a.Recipients[k])
+	}
+
+	for k := range a.Tags {
+		tx.Where(&a.Tags[k]).FirstOrCreate(&a.Tags[k])
+		tx.Model(&a.Group).Association("Tags").Append(&a.Tags[k])
+	}
+
+	tx.Commit()
+
+	jsonStr, _ := json.Marshal(&a.Group)
 	WriteResponseHeader(w, 200)
 	w.Write(jsonStr)
 }

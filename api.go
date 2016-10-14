@@ -26,7 +26,7 @@ func (n *NotificationRequest) Deserialize(r *http.Request) error {
 
 // Request Body for Alert groups
 type AlertGroupRequest struct {
-	Group      AlertGroup  `json:"groups"`
+	Group      AlertGroup  `json:"group"`
 	Recipients []Recipient `json:"recipients"`
 	Tags       []Tag       `json:"tags"`
 }
