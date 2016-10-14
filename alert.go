@@ -52,12 +52,18 @@ func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 	var a AlertGroup
 	var u AlertGroupRequest
 
-	if err := App.db.Where("ext_id = ?", params["id"]).First(&a).Error; err != nil {
+	err := App.db.Preload("Tags").
+		Preload("Recipients").
+		Where("ext_id = ?", params["id"]).
+		First(&a).
+		Error
+
+	if err != nil {
 		WriteResponse(w, 404, &Response{Error: "Alert group not found"})
 		return
 	}
 
-	err := json.NewDecoder(r.Body).Decode(&u)
+	err = json.NewDecoder(r.Body).Decode(&u)
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
@@ -71,10 +77,25 @@ func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := App.db.Model(&a).Updates(u.Group).Error; err != nil {
+	tx := App.db.Begin()
+
+	if err := tx.Set("gorm:save_associations", false).Model(&a).Updates(u.Group).Error; err != nil {
 		WriteResponse(w, 422, &Response{Error: "Unable to save entity"})
+		tx.Rollback()
 		return
 	}
+
+	for k := range u.Recipients {
+		tx.Where(&u.Recipients[k]).FirstOrCreate(&u.Recipients[k])
+		tx.Model(&a).Association("Recipients").Append(&u.Recipients[k])
+	}
+
+	for k := range u.Tags {
+		tx.Where(&u.Tags[k]).FirstOrCreate(&u.Tags[k])
+		tx.Model(&a).Association("Tags").Append(&u.Tags[k])
+	}
+
+	tx.Commit()
 
 	jsonStr, _ := json.Marshal(&a)
 	WriteResponseHeader(w, 200)
@@ -86,7 +107,12 @@ func GetAlertGroup(w http.ResponseWriter, r *http.Request) {
 	var a []AlertGroup
 
 	p := GetPaginationFromRequest(r)
-	App.db.Limit(p.Limit).Offset(p.Offset).Find(&a)
+	App.db.
+		Limit(p.Limit).
+		Offset(p.Offset).
+		Preload("Tags").
+		Preload("Recipients").
+		Find(&a)
 
 	jsonStr, _ := json.Marshal(&a)
 	WriteResponseHeader(w, 200)
