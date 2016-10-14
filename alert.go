@@ -50,7 +50,7 @@ func PostAlertGroup(w http.ResponseWriter, r *http.Request) {
 func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	var a AlertGroup
-	var u AlertGroup
+	var u AlertGroupRequest
 
 	if err := App.db.Where("ext_id = ?", params["id"]).First(&a).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Alert group not found"})
@@ -64,14 +64,14 @@ func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = Validator.Struct(&u)
+	err = Validator.Struct(&u.Group)
 
 	if err != nil {
 		WriteValidationErrorResponse(w, err)
 		return
 	}
 
-	if err := App.db.Model(&a).Updates(u).Error; err != nil {
+	if err := App.db.Model(&a).Updates(u.Group).Error; err != nil {
 		WriteResponse(w, 422, &Response{Error: "Unable to save entity"})
 		return
 	}

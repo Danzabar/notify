@@ -61,7 +61,14 @@ func TestPostAlertGroupBadJSON(t *testing.T) {
 }
 
 func TestPostAlertGroupValidationError(t *testing.T) {
-	payload := []byte(`{"type": "test"}`)
+	App.db.Unscoped().Delete(&AlertGroup{})
+	r := &AlertGroupRequest{
+		Group: AlertGroup{
+			Type: "mail",
+		},
+	}
+
+	payload, _ := json.Marshal(r)
 
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/alert-group", server.URL), bytes.NewReader(payload))
 	resp, err := http.DefaultClient.Do(req)
@@ -76,7 +83,6 @@ func TestPostAlertGroupValidationError(t *testing.T) {
 func TestPostAlertGroupUnProcessable(t *testing.T) {
 	App.db.Delete(&AlertGroup{})
 	App.db.Create(&AlertGroup{Name: "Test-Group"})
-
 	r := &AlertGroupRequest{
 		Group: AlertGroup{
 			Name: "Test-Group",
@@ -109,7 +115,12 @@ func TestGetAlertGroup(t *testing.T) {
 func TestPutAlertGroupSuccess(t *testing.T) {
 	a := &AlertGroup{Name: "Test Group", Type: "urgent"}
 	App.db.Create(a)
-	payload := []byte(`{"name": "updated name"}`)
+	r := &AlertGroupRequest{
+		Group: AlertGroup{
+			Name: "updated name",
+		},
+	}
+	payload, _ := json.Marshal(r)
 
 	req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/alert-group/%s", server.URL, a.ExtId), bytes.NewReader(payload))
 	resp, err := http.DefaultClient.Do(req)
@@ -157,7 +168,13 @@ func TestPutAlertGroupUnsaveable(t *testing.T) {
 	App.db.Create(a)
 	App.db.Create(&AlertGroup{Name: "Conflict"})
 
-	payload := []byte(`{"name": "Conflict"}`)
+	r := &AlertGroupRequest{
+		Group: AlertGroup{
+			Name: "Conflict",
+		},
+	}
+	payload, _ := json.Marshal(r)
+
 	req, _ := http.NewRequest("PUT", fmt.Sprintf("%s/api/v1/alert-group/%s", server.URL, a.ExtId), bytes.NewReader(payload))
 
 	resp, err := http.DefaultClient.Do(req)
