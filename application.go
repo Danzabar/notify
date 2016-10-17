@@ -109,6 +109,7 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 
 	App.db.
 		Where(&Notification{Read: false}).
+		Preload("Tags").
 		Limit(p.Limit).
 		Offset(p.Offset).
 		Find(&n)
