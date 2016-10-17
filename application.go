@@ -9,8 +9,10 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"gopkg.in/go-playground/validator.v9"
+	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -20,6 +22,7 @@ type Application struct {
 	server *socketio.Server
 	socket socketio.Socket
 	router *mux.Router
+	mg     mailgun.Mailgun
 	port   string
 }
 
@@ -38,6 +41,7 @@ func NewApp(port string, dbDriver string, dbCreds string) *Application {
 		router: mux.NewRouter(),
 		port:   port,
 		server: ConnectSocket(),
+		mg:     mailgun.NewMailgun(os.Getenv("MG_DOMAIN"), os.Getenv("MG_APIKEY"), os.Getenv("MG_PUBKEY")),
 	}
 }
 
