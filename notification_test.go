@@ -55,8 +55,9 @@ func TestGetSeperatesReadMessages(t *testing.T) {
 
 // Tests that you can successfully save a notification via the api
 func TestPostNotificationSuccess(t *testing.T) {
-
-	reqPayload := []byte(`{"message":"A test notification", "source":"test", "read":true}`)
+	r := &NotificationRequest{}
+	r.Notifications = append(r.Notifications, Notification{Message: "a test notification", Source: "test", Read: true})
+	reqPayload, _ := json.Marshal(r)
 
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification", server.URL), bytes.NewReader(reqPayload))
 	req.Header.Set("Content-Type", "application/json")
@@ -67,12 +68,12 @@ func TestPostNotificationSuccess(t *testing.T) {
 
 	resp, _ := http.DefaultClient.Do(req)
 
-	var n Notification
+	var n NotificationRequest
 	json.NewDecoder(resp.Body).Decode(&n)
 
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, true, n.Read)
-	assert.Equal(t, "test", n.Source)
+	assert.Equal(t, true, n.Notifications[0].Read)
+	assert.Equal(t, "test", n.Notifications[0].Source)
 }
 
 // Tests that bad json values return a 400
@@ -92,7 +93,9 @@ func TestPostNotificationBadJSON(t *testing.T) {
 }
 
 func TestPostNotificationValidation(t *testing.T) {
-	reqPayload := []byte(`{"message":"test"}`)
+	r := &NotificationRequest{}
+	r.Notifications = append(r.Notifications, Notification{Message: "a test notification"})
+	reqPayload, _ := json.Marshal(r)
 
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification", server.URL), bytes.NewReader(reqPayload))
 

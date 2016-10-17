@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -46,26 +47,41 @@ func DeleteNotification(w http.ResponseWriter, r *http.Request) {
 // Endpoint to create a new notification
 // [POST] /api/v1/notification
 func PostNotification(w http.ResponseWriter, r *http.Request) {
-	var n Notification
-
-	err := json.NewDecoder(r.Body).Decode(&n)
+	n := NotificationRequest{}
+	err := n.Deserialize(r)
 
 	if err != nil {
 		WriteResponse(w, 400, &Response{Error: "Invalid JSON"})
 		return
 	}
 
-	err = Validator.Struct(&n)
+	tx := App.db.Begin()
 
-	if err != nil {
-		WriteValidationErrorResponse(w, err)
-		return
+	for k := range n.Tags {
+		if err := tx.Where(&n.Tags[k]).FirstOrCreate(&n.Tags[k]).Error; err != nil {
+			WriteResponse(w, 422, &Response{Error: fmt.Sprintf("Unable to upsert tag - (%s)", err)})
+			tx.Rollback()
+			return
+		}
 	}
 
-	if err := App.db.Create(&n).Error; err != nil {
-		WriteResponse(w, 422, &Response{Error: "Unable to save notification"})
-		return
+	for k := range n.Notifications {
+		if err := Validator.Struct(n.Notifications[k]); err != nil {
+			WriteValidationErrorResponse(w, err)
+			tx.Rollback()
+			return
+		}
+
+		if err := tx.Create(&n.Notifications[k]).Error; err != nil {
+			WriteResponse(w, 422, &Response{Error: fmt.Sprintf("Unable to create notification[%s] - (%s)", k, err)})
+			tx.Rollback()
+			return
+		}
+
+		tx.Model(&n.Notifications[k]).Association("Tags").Append(n.Tags)
 	}
+
+	tx.Commit()
 
 	jsonStr, _ := json.Marshal(&n)
 	WriteResponseHeader(w, 200)
@@ -116,7 +132,7 @@ func FindNotification(w http.ResponseWriter, r *http.Request) {
 
 	var n Notification
 
-	if err := App.db.Where("ID = ?", params["id"]).Or(&Notification{ExtId: params["id"]}).First(&n).Error; err != nil {
+	if err := App.db.Where("ID = ?", params["id"]).Or(&Notification{ExtId: params["id"]}).Preload("Tags").First(&n).Error; err != nil {
 		WriteResponse(w, 404, &Response{Error: "Notification not found"})
 		return
 	}
@@ -138,9 +154,13 @@ func GetNotification(w http.ResponseWriter, r *http.Request) {
 
 	p := GetPaginationFromRequest(r)
 
-	App.db.Limit(p.Limit).Offset(p.Offset).Where(&Notification{Read: hasRead}).Find(&n)
-	jsonStr, _ := json.Marshal(&n)
+	App.db.Preload("Tags").
+		Limit(p.Limit).
+		Offset(p.Offset).
+		Where(&Notification{Read: hasRead}).
+		Find(&n)
 
+	jsonStr, _ := json.Marshal(&n)
 	WriteResponseHeader(w, 200)
 	w.Write(jsonStr)
 }
