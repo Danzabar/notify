@@ -17,6 +17,8 @@ type Tag struct {
 	Source string `json:"source" conform:"slug"`
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
+	// Alert group relationship
+	AlertGroups []AlertGroup `gorm:"many2many:group_recipients"`
 }
 
 // Tag Before Create

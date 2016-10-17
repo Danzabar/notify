@@ -7,4 +7,5 @@ import (
 // Checks for and sends alerts
 func SendAlerts() {
 	fmt.Println("Alerting___")
+
 }
