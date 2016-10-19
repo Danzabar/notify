@@ -37,6 +37,7 @@ func PostAlertGroup(w http.ResponseWriter, r *http.Request) {
 	for k := range a.Tags {
 		tx.Where(&a.Tags[k]).FirstOrCreate(&a.Tags[k])
 		tx.Model(&a.Group).Association("Tags").Append(&a.Tags[k])
+		tx.Model(&a.Tags[k]).Association("AlertGroups").Append(&a.Group)
 	}
 
 	tx.Commit()

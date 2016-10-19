@@ -17,6 +17,7 @@ func main() {
 	migrate := flag.Bool("m", false, "Runs migrations before running server")
 	dbDriver := flag.String("driver", "sqlite3", "The database driver notify should use")
 	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
+	enableAlert := flag.Bool("a", false, "Enables the alerting schedule")
 
 	flag.Parse()
 
@@ -29,8 +30,10 @@ func main() {
 	}
 
 	// Start the alert task schedule
-	gocron.Every(1).Second().Do(SendAlerts)
-	gocron.Start()
+	if *enableAlert {
+		gocron.Every(1).Second().Do(SendAlerts)
+		<-gocron.Start()
+	}
 
 	// Run The Application
 	App.Run()
