@@ -7,7 +7,8 @@ import (
 
 func init() {
 	App = NewApp(":8888", "sqlite3", "/tmp/test.db")
-	App.test = true
+
+	Migrate()
 
 	App.db.Delete(&Notification{})
 	App.db.Delete(&AlertGroup{})
@@ -34,6 +35,7 @@ func TestPendingAlertsAreUpdated(t *testing.T) {
 	App.db.Create(n)
 	App.db.Model(n).Association("Tags").Append(m)
 
+	App.test = true
 	SendAlerts()
 
 	var u Notification
@@ -50,6 +52,7 @@ func TestSkipRecordsWithNoAlertGroup(t *testing.T) {
 	App.db.Create(m)
 	App.db.Model(n).Association("Tags").Append(m)
 
+	App.test = true
 	SendAlerts()
 
 	var u Notification
