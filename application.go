@@ -23,6 +23,7 @@ type Application struct {
 	socket socketio.Socket
 	router *mux.Router
 	mg     mailgun.Mailgun
+	test   bool
 	port   string
 }
 

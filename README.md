@@ -16,3 +16,9 @@ Then run the application with your settings, by default this will use a sqlite c
 Use the `-m` flag to run migrations
 
 	notify -m
+
+### Sending Alerts
+
+To start scanning and sending alerts use the `-a` flag
+
+	notify -a

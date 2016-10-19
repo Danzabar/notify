@@ -19,7 +19,6 @@ func SendAlerts() {
 		Find(&n)
 
 	if len(n) > 0 {
-		log.Printf("Found %d notifications to alert on", len(n))
 		filterAndSend(n)
 	}
 }
@@ -66,29 +65,29 @@ func filterAndSend(notifications []Notification) {
 
 	// Skip the ones with no alert group
 	if len(s) > 0 {
-		log.Printf("Skipping %d notifications", len(s))
-		updateNotifications(s)
+		skipNotifications(s)
 	}
 }
 
-func sendMail(t string, n []Notification, a []AlertGroup) error {
+func sendMail(t string, n []Notification, a []AlertGroup) {
 	m := App.mg.NewMessage("notify@valeska.co.uk", fmt.Sprintf("New notifications for %s", t), "You have notifications")
 
 	for _, v := range a {
 		for _, r := range v.Recipients {
-			log.Printf("adding %s recipient", r.Email)
 			m.AddRecipient(r.Email)
 		}
 	}
 
-	_, _, err := App.mg.Send(m)
+	if !App.test {
+		_, _, err := App.mg.Send(m)
 
-	if err != nil {
-		// We don't want to update the notifications
-		// but we also don't want to kill the server
-		// with a panic.
-		log.Fatal(err)
-		return
+		if err != nil {
+			// We don't want to update the notifications
+			// but we also don't want to kill the server
+			// with a panic.
+			log.Fatal(err)
+			return
+		}
 	}
 
 	updateNotifications(n)
@@ -98,6 +97,19 @@ func createEmailBody(n []Notification) {
 
 }
 
+func skipNotifications(n []Notification) {
+	tx := App.db.Begin()
+
+	for _, v := range n {
+		v.Read = true
+		if err := tx.Save(v).Error; err != nil {
+			tx.Rollback()
+		}
+	}
+
+	tx.Commit()
+}
+
 func updateNotifications(n []Notification) {
 	tx := App.db.Begin()
 
@@ -105,10 +117,8 @@ func updateNotifications(n []Notification) {
 		v.Alerted = true
 		if err := tx.Save(&v).Error; err != nil {
 			tx.Rollback()
-			updateNotifications(n)
 		}
 	}
 
 	tx.Commit()
-	log.Printf("Updated %d notifications", len(n))
 }
