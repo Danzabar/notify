@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 )
@@ -70,7 +71,8 @@ func filterAndSend(notifications []Notification) {
 }
 
 func sendMail(t string, n []Notification, a []AlertGroup) {
-	m := App.mg.NewMessage("notify@valeska.co.uk", fmt.Sprintf("New notifications for %s", t), "You have notifications")
+	m := App.mg.NewMessage("notify@valeska.co.uk", fmt.Sprintf("New notifications for %s", t), "New Notifications!")
+	m.SetHtml(createEmailBody(n, t))
 
 	for _, v := range a {
 		for _, r := range v.Recipients {
@@ -93,8 +95,16 @@ func sendMail(t string, n []Notification, a []AlertGroup) {
 	updateNotifications(n)
 }
 
-func createEmailBody(n []Notification) {
+func createEmailBody(n []Notification, t string) string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("<html><div><p>New notifications for the tag %s</p><ul>", t))
 
+	for _, v := range n {
+		buf.WriteString(fmt.Sprintf("<li>%s</li>", v.Message))
+	}
+
+	buf.WriteString("</ul><p>Do not reply to this email</p></div></html>")
+	return buf.String()
 }
 
 func skipNotifications(n []Notification) {

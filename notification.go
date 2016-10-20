@@ -73,7 +73,7 @@ func PostNotification(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := tx.Create(&n.Notifications[k]).Error; err != nil {
-			WriteResponse(w, 422, &Response{Error: fmt.Sprintf("Unable to create notification[%s] - (%s)", k, err)})
+			WriteResponse(w, 422, &Response{Error: fmt.Sprintf("Unable to create notification[%d] - (%s)", k, err)})
 			tx.Rollback()
 			return
 		}

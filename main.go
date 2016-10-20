@@ -31,7 +31,7 @@ func main() {
 
 	// Start the alert task schedule
 	if *enableAlert {
-		gocron.Every(1).Second().Do(SendAlerts)
+		gocron.Every(5).Minutes().Do(SendAlerts)
 		<-gocron.Start()
 	}
 
