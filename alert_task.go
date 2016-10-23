@@ -15,8 +15,7 @@ func SendAlerts() {
 		Preload("Tags").
 		Preload("Tags.AlertGroups").
 		Preload("Tags.AlertGroups.Recipients").
-		Where("alerted = ?", false).
-		Where("read = ?", false).
+		Where(Notification{Alerted: false, Read: false}).
 		Find(&n)
 
 	if len(n) > 0 {
