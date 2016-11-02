@@ -18,10 +18,11 @@ func main() {
 	dbDriver := flag.String("driver", "sqlite3", "The database driver notify should use")
 	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
 	enableAlert := flag.Bool("a", false, "Enables the alerting schedule")
+	port := flag.String("port", ":8080", "Port on which the server runs")
 
 	flag.Parse()
 
-	App = NewApp(":8080", *dbDriver, *dbCreds)
+	App = NewApp(*port, *dbDriver, *dbCreds)
 
 	// Run Migrations
 	if *migrate {
@@ -31,7 +32,7 @@ func main() {
 
 	// Start the alert task schedule
 	if *enableAlert {
-		gocron.Every(5).Minutes().Do(SendAlerts)
+		gocron.Every(1).Minute().Do(SendAlerts)
 		<-gocron.Start()
 	}
 

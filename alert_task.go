@@ -86,7 +86,7 @@ func sendMail(t string, n []Notification, a []AlertGroup) {
 			// We don't want to update the notifications
 			// but we also don't want to kill the server
 			// with a panic.
-			log.Fatal(err)
+			log.Print(err)
 			return
 		}
 	}
@@ -99,7 +99,7 @@ func createEmailBody(n []Notification, t string) string {
 	buf.WriteString(fmt.Sprintf("<html><div><p>New notifications for the tag %s</p><ul>", t))
 
 	for _, v := range n {
-		buf.WriteString(fmt.Sprintf("<li>%s</li>", v.Message))
+		buf.WriteString(fmt.Sprintf("<li>%s (%s)- %s</li>", v.Message, v.Source, v.Action))
 	}
 
 	buf.WriteString("</ul><p>Do not reply to this email</p></div></html>")
@@ -112,6 +112,7 @@ func skipNotifications(n []Notification) {
 	for _, v := range n {
 		v.Read = true
 		if err := tx.Save(v).Error; err != nil {
+			log.Print(err)
 			tx.Rollback()
 		}
 	}
@@ -125,6 +126,7 @@ func updateNotifications(n []Notification) {
 	for _, v := range n {
 		v.Alerted = true
 		if err := tx.Save(&v).Error; err != nil {
+			log.Print(err)
 			tx.Rollback()
 		}
 	}
