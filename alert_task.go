@@ -125,6 +125,7 @@ func updateNotifications(n []Notification) {
 
 	for _, v := range n {
 		v.Alerted = true
+		v.Read = true
 		if err := tx.Save(&v).Error; err != nil {
 			log.Print(err)
 			tx.Rollback()
