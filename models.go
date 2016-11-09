@@ -3,17 +3,20 @@ package main
 import (
 	"encoding/json"
 	"github.com/influxdata/influxdb/uuid"
-	"github.com/jinzhu/gorm"
 	"github.com/leebenson/conform"
 	"time"
 )
 
-// Tag Model
-type Tag struct {
+type Model struct {
 	ID        uint       `gorm:"primary_key" json:"id"`
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"-"`
+}
+
+// Tag Model
+type Tag struct {
+	Model
 
 	// The Tag Name
 	Name string `gorm:"not null" json:"name" conform:"name" validate:"required"`
@@ -41,10 +44,7 @@ func (t *Tag) AfterCreate() {
 
 // Notification Model
 type Notification struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"-"`
+	Model
 
 	// The message of the notification
 	Message string `gorm:"type:text;not null" json:"message" conform:"ucfirst,trim" validate:"required"`
@@ -77,10 +77,7 @@ func (n *Notification) AfterCreate() {
 }
 
 type AlertGroup struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"-"`
+	Model
 
 	Name       string      `gorm:"unique" json:"name" validate:"required"`
 	ExtId      string      `gorm:"unique" json:"extId"`
@@ -95,7 +92,7 @@ func (a *AlertGroup) BeforeCreate() {
 }
 
 type Recipient struct {
-	gorm.Model `json:"-"`
+	Model
 
 	Name  string `json:"name" conform:"name"`
 	Email string `json:"email"`
@@ -105,4 +102,7 @@ type Recipient struct {
 func (r *Recipient) BeforeCreate() {
 	r.ExtId = uuid.TimeUUID().String()
 	conform.Strings(r)
+}
+
+type EmailTemplate struct {
 }
