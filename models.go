@@ -24,6 +24,8 @@ type Tag struct {
 	Source string `json:"source" conform:"slug"`
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
+	// Email Template associated with tag
+	EmailTemplate EmailTemplate `json:"emailTemplate"`
 	// Alert group relationship
 	AlertGroups []AlertGroup `gorm:"many2many:group_tags"`
 }
@@ -105,4 +107,14 @@ func (r *Recipient) BeforeCreate() {
 }
 
 type EmailTemplate struct {
+	Model
+
+	Name    string `json:"name" conform:"name"`
+	ExtId   string `json:"extId" gorm:"unique"`
+	Content string `json:"content" gorm:"type:text"`
+}
+
+func (e *EmailTemplate) BeforeCreate() {
+	e.ExtId = uuid.TimeUUID().String()
+	conform.Strings(e)
 }
