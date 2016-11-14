@@ -26,7 +26,7 @@ func (n *NotificationRequest) Deserialize(r *http.Request) error {
 
 type EmailTemplateRequest struct {
 	Template EmailTemplate `json:"template"`
-	Tags     []Tag         `json:"tags"`
+	Tags     []Tag         `json:"tags,omitempty"`
 }
 
 func (e *EmailTemplateRequest) Deserialize(r *http.Request) error {

@@ -25,7 +25,7 @@ type Tag struct {
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
 	// Email Template associated with tag
-	EmailTemplate EmailTemplate `json:"emailTemplate"`
+	EmailTemplate EmailTemplate `json:"-"`
 	// Alert group relationship
 	AlertGroups []AlertGroup `gorm:"many2many:group_tags"`
 }
