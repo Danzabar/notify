@@ -191,6 +191,11 @@ func (a *Application) setRoutes() {
 	api.HandleFunc("/email", PostEmailTemplate).
 		Methods("POST")
 
+	// [GET] /api/v1/email
 	api.HandleFunc("/email", GetEmailTemplate).
+		Methods("GET")
+
+	// [GET] /api/v1/email/{id}
+	api.HandleFunc("/email/{id}", FindEmailTemplate).
 		Methods("GET")
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -16,7 +17,7 @@ func PostEmailTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := Validator.Struct(e.Template); err != nil {
+	if err := Validator.Struct(&e.Template); err != nil {
 		WriteValidationErrorResponse(w, err)
 		return
 	}
@@ -57,6 +58,22 @@ func GetEmailTemplate(w http.ResponseWriter, r *http.Request) {
 	App.db.Limit(p.Limit).
 		Offset(p.Offset).
 		Find(&e)
+
+	jsonStr, _ := json.Marshal(&e)
+	WriteResponseHeader(w, 200)
+	w.Write(jsonStr)
+}
+
+// Find an email template
+// [GET] /api/v1/email
+func FindEmailTemplate(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	var e EmailTemplate
+
+	if err := App.db.Where(&EmailTemplate{ExtId: params["id"]}).First(&e).Error; err != nil {
+		WriteResponse(w, 404, &Response{Error: "Email template not found"})
+		return
+	}
 
 	jsonStr, _ := json.Marshal(&e)
 	WriteResponseHeader(w, 200)
