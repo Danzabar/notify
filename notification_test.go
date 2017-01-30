@@ -16,7 +16,7 @@ var (
 
 // Initialise Application
 func init() {
-	App = NewApp("5000", "sqlite3", "/tmp/test.db")
+	App = NewApp("5000", "sqlite3", "/tmp/test.db", "test", "test")
 	App.setRoutes()
 
 	// Make sure database migration is up to date
@@ -28,6 +28,7 @@ func init() {
 // Tests that the GET endpoint returns a 200
 func TestGetReturns200(t *testing.T) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification", server.URL), nil)
+	req.SetBasicAuth("test", "test")
 
 	if err != nil {
 		t.Fatal("Request failed [GET] /api/v1/notification")
@@ -43,6 +44,7 @@ func TestGetSeperatesReadMessages(t *testing.T) {
 	App.db.Create(&Notification{Message: "Test2", Read: true})
 
 	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification?read=true", server.URL), nil)
+	req.SetBasicAuth("test", "test")
 
 	resp, err := http.DefaultClient.Do(req)
 
@@ -116,6 +118,7 @@ func TestDeleteNotificationSuccess(t *testing.T) {
 	App.db.Create(n)
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), nil)
+	req.SetBasicAuth("test", "test")
 
 	if err != nil {
 		t.Fatal("Request failed [DELETE] /api/v1/notification")
@@ -129,6 +132,7 @@ func TestDeleteNotificationSuccess(t *testing.T) {
 // Test that delete endpoint returns 404 if not found
 func TestDeleteNotificationNotFound(t *testing.T) {
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/api/v1/notification/hdhdsjh", server.URL), nil)
+	req.SetBasicAuth("test", "test")
 
 	if err != nil {
 		t.Fatal("Request failed [DELETE] /api/v1/notification")
@@ -148,6 +152,7 @@ func TestGetNotificationSuccess(t *testing.T) {
 	App.db.Create(n)
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification/%s", server.URL, n.ExtId), nil)
+	req.SetBasicAuth("test", "test")
 
 	if err != nil {
 		t.Fatal("Request failed [GET] /api/v1/notification")
@@ -166,7 +171,7 @@ func TestGetNotificationSuccess(t *testing.T) {
 // Test that get returns 404 if not found
 func TestGetNotificationNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification/not-found", server.URL), nil)
-
+	req.SetBasicAuth("test", "test")
 	if err != nil {
 		t.Fatal("Request failed [GET] /api/v1/notification")
 	}
@@ -255,7 +260,7 @@ func TestGetReturnsPaginatedList(t *testing.T) {
 	}
 
 	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification?pageSize=1&page=5", server.URL), nil)
-
+	req.SetBasicAuth("test", "test")
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -275,7 +280,7 @@ func TestPostReadNotificationSuccess(t *testing.T) {
 	App.db.Create(n)
 
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/%s/read", server.URL, n.ExtId), nil)
-
+	req.SetBasicAuth("test", "test")
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {
@@ -291,7 +296,7 @@ func TestPostReadNotificationSuccess(t *testing.T) {
 
 func TestPostReadFail(t *testing.T) {
 	req, _ := http.NewRequest("POST", fmt.Sprintf("%s/api/v1/notification/test-fhf/read", server.URL), nil)
-
+	req.SetBasicAuth("test", "test")
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	App = NewApp(":5000", "sqlite3", "/tmp/test.db")
+	App = NewApp(":5000", "sqlite3", "/tmp/test.db", "test", "test")
 	App.setRoutes()
 
 	Migrate()
@@ -103,6 +103,7 @@ func TestPostAlertGroupUnProcessable(t *testing.T) {
 
 func TestGetAlertGroup(t *testing.T) {
 	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/alert-group", server.URL), nil)
+	req.SetBasicAuth("test", "test")
 	resp, err := http.DefaultClient.Do(req)
 
 	if err != nil {

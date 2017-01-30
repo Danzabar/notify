@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	App = NewApp(":8888", "sqlite3", "/tmp/test.db")
+	App = NewApp(":8888", "sqlite3", "/tmp/test.db", "test", "test")
 
 	Migrate()
 
@@ -20,10 +20,10 @@ func TestPendingAlertsAreUpdated(t *testing.T) {
 	m := &Tag{
 		Name: "TestAlert",
 		AlertGroups: []AlertGroup{
-			AlertGroup{
+			{
 				Name: "TestGroup",
 				Recipients: []Recipient{
-					Recipient{
+					{
 						Email: "danzabian@gmail.com",
 					},
 				},
