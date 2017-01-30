@@ -25,10 +25,12 @@ type Application struct {
 	mg     mailgun.Mailgun
 	test   bool
 	port   string
+	user   string
+	pass   string
 }
 
 // Creates a new application and returns the pointer value
-func NewApp(port string, dbDriver string, dbCreds string) *Application {
+func NewApp(port string, dbDriver string, dbCreds string, user string, pass string) *Application {
 	db, err := gorm.Open(dbDriver, dbCreds)
 
 	if err != nil {
@@ -42,6 +44,8 @@ func NewApp(port string, dbDriver string, dbCreds string) *Application {
 		router: mux.NewRouter(),
 		port:   port,
 		server: ConnectSocket(),
+		user:   user,
+		pass:   pass,
 		mg:     mailgun.NewMailgun(os.Getenv("MG_DOMAIN"), os.Getenv("MG_APIKEY"), os.Getenv("MG_PUBKEY")),
 	}
 }
@@ -140,7 +144,7 @@ func (a *Application) setRoutes() {
 		Methods("POST")
 
 	// [GET] /api/v1/alert-group
-	api.HandleFunc("/alert-group", GetAlertGroup).
+	api.HandleFunc("/alert-group", Use(GetAlertGroup, BasicAuth)).
 		Methods("GET")
 
 	// [PUT] /api/v1/alert-group/{id}
@@ -156,11 +160,11 @@ func (a *Application) setRoutes() {
 		Methods("POST")
 
 	// [GET] /api/v1/notification/{id}
-	api.HandleFunc("/notification/{id}", FindNotification).
+	api.HandleFunc("/notification/{id}", Use(FindNotification, BasicAuth)).
 		Methods("GET")
 
 	// [DELETE] /api/v1/notification/{id}
-	api.HandleFunc("/notification/{id}", DeleteNotification).
+	api.HandleFunc("/notification/{id}", Use(DeleteNotification, BasicAuth)).
 		Methods("DELETE")
 
 	// [PUT] /api/v1/notification/{id}
@@ -172,7 +176,7 @@ func (a *Application) setRoutes() {
 		Methods("POST")
 
 	// [GET] /api/v1/notification
-	api.HandleFunc("/notification", GetNotification).
+	api.HandleFunc("/notification", Use(GetNotification, BasicAuth)).
 		Methods("GET")
 
 	// [GET] /api/v1/tag/{id}

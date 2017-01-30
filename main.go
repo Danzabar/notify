@@ -19,10 +19,12 @@ func main() {
 	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
 	enableAlert := flag.Bool("a", false, "Enables the alerting schedule")
 	port := flag.String("port", ":8080", "Port on which the server runs")
+	user := flag.String("user", "admin", "Username for basic auth stuffs")
+	pass := flag.String("pass", "changeme", "Password for authentication")
 
 	flag.Parse()
 
-	App = NewApp(*port, *dbDriver, *dbCreds)
+	App = NewApp(*port, *dbDriver, *dbCreds, *user, *pass)
 
 	// Run Migrations
 	if *migrate {

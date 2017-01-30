@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/base64"
 	"gopkg.in/go-playground/validator.v9"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type Pagination struct {
@@ -38,6 +40,43 @@ func WriteValidationErrorResponse(w http.ResponseWriter, err error) {
 	}
 
 	WriteResponse(w, 400, v)
+}
+
+// Used to chain handlers with middleware
+func Use(h http.HandlerFunc, middleware ...func(http.HandlerFunc) http.HandlerFunc) http.HandlerFunc {
+	for _, m := range middleware {
+		h = m(h)
+	}
+
+	return h
+}
+
+// Handler for Basic Auth
+func BasicAuth(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+
+		s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
+		if len(s) != 2 {
+			http.Error(w, "Not Authorized", 401)
+			return
+		}
+
+		b, _ := base64.StdEncoding.DecodeString(s[1])
+		pair := strings.SplitN(string(b), ":", 2)
+
+		if len(pair) != 2 {
+			http.Error(w, "Not Authorized", 401)
+			return
+		}
+
+		if pair[0] != App.user || pair[1] != App.pass {
+			http.Error(w, "Not Authorized", 401)
+			return
+		}
+
+		h.ServeHTTP(w, r)
+	}
 }
 
 // Creates pagination options from given request
