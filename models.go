@@ -40,8 +40,10 @@ func (t *Tag) BeforeCreate() {
 }
 
 func (t *Tag) AfterCreate() {
-	jsonStr, _ := json.Marshal(t)
-	App.server.BroadcastTo("notify", "new:tag", string(jsonStr))
+	if App.socket != nil {
+		jsonStr, _ := json.Marshal(t)
+		App.socket.Emit("new:tag", string(jsonStr))
+	}
 }
 
 // Notification Model
@@ -71,11 +73,6 @@ func (n *Notification) BeforeCreate() {
 	n.ExtId = u.String()
 
 	conform.Strings(n)
-}
-
-func (n *Notification) AfterCreate() {
-	jsonStr, _ := json.Marshal(n)
-	App.server.BroadcastTo("notify", "new:notify", string(jsonStr))
 }
 
 type AlertGroup struct {

@@ -79,6 +79,13 @@ func PostNotification(w http.ResponseWriter, r *http.Request) {
 		}
 
 		tx.Model(&n.Notifications[k]).Association("Tags").Append(n.Tags)
+
+		if App.socket != nil {
+			go func() {
+				sp, _ := json.Marshal(n.Notifications[k])
+				App.socket.Emit("new:notify", string(sp))
+			}()
+		}
 	}
 
 	tx.Commit()

@@ -69,8 +69,8 @@ func (a *Application) Run() {
 	a.setRoutes()
 
 	a.server.On("connection", func(so socketio.Socket) {
-		a.socket = so
-		so.Join("notify")
+		log.Print("User connects to socket")
+		App.socket = so
 	})
 
 	a.server.On("notification:read", a.OnNotificationRead)
@@ -98,6 +98,7 @@ func (a *Application) OnNotificationRead(msg string) string {
 }
 
 func (a *Application) OnNotificationRefresh(msg string) string {
+	log.Print(msg)
 	var r NotificationRefresh
 	err := json.NewDecoder(strings.NewReader(msg)).Decode(&r)
 
@@ -114,6 +115,7 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 	App.db.
 		Model(&Notification{}).
 		Where(&Notification{Read: false}).
+		Order("updated_at DESC").
 		Count(&c)
 
 	App.db.
