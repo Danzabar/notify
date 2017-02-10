@@ -115,7 +115,6 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 	App.db.
 		Model(&Notification{}).
 		Where(&Notification{Read: false}).
-		Order("updated_at DESC").
 		Count(&c)
 
 	App.db.
@@ -123,6 +122,7 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 		Preload("Tags").
 		Limit(p.Limit).
 		Offset(p.Offset).
+		Order("updated_at DESC").
 		Find(&n)
 
 	resp := &SocketLoadPayload{
