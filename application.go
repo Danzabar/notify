@@ -98,7 +98,6 @@ func (a *Application) OnNotificationRead(msg string) string {
 }
 
 func (a *Application) OnNotificationRefresh(msg string) string {
-	log.Print(msg)
 	var r NotificationRefresh
 	err := json.NewDecoder(strings.NewReader(msg)).Decode(&r)
 
@@ -107,30 +106,8 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 		return string(r.Serialize())
 	}
 
-	p := GetPaginationFromSocketRequest(&r)
-
-	var n []Notification
-	var c int
-
-	cd := App.db.Model(&Notification{})
-
-	if !r.Read {
-		cd.Where(&Notification{Read: false})
-	}
-
-	cd.Count(&c)
-
-	nd := App.db.
-		Preload("Tags").
-		Limit(p.Limit).
-		Offset(p.Offset).
-		Order("updated_at DESC")
-
-	if !r.Read {
-		nd.Where(&Notification{Read: false})
-	}
-
-	nd.Find(&n)
+	p := GetPaginationFromSocketRequest(r)
+	c, n := SearchNotifications(r, p)
 
 	resp := &SocketLoadPayload{
 		Notifications: n,

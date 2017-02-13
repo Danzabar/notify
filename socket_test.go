@@ -47,7 +47,7 @@ func TestSocketRefreshEvent(t *testing.T) {
 	var r SocketLoadPayload
 	App.db.Delete(&Notification{})
 	App.db.Create(&Notification{Message: "Test Refresh"})
-	payload := `{"page":0, "pageSize": 10}`
+	payload := `{"page":1, "pageSize": 10}`
 
 	resp := App.OnNotificationRefresh(payload)
 

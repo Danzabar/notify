@@ -102,7 +102,7 @@ func GetPaginationFromRequest(r *http.Request) *Pagination {
 	return createPagination(l, o)
 }
 
-func GetPaginationFromSocketRequest(r *NotificationRefresh) *Pagination {
+func GetPaginationFromSocketRequest(r NotificationRefresh) *Pagination {
 	if r.Page == 0 {
 		r.Page = 1
 	}

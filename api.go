@@ -85,8 +85,9 @@ type NotificationRead struct {
 
 // Request sent from client socket to refresh notifications by page
 type NotificationRefresh struct {
-	Page     int      `json:"page"`
-	PageSize int      `json:"pageSize"`
-	Tags     []string `json:"tags"`
-	Read     bool     `json:"read"`
+	Page     int               `json:"page"`
+	PageSize int               `json:"pageSize"`
+	Tags     []string          `json:"tags"`
+	Read     bool              `json:"read"`
+	Search   map[string]string `json:"search"`
 }
