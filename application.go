@@ -112,18 +112,25 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 	var n []Notification
 	var c int
 
-	App.db.
-		Model(&Notification{}).
-		Where(&Notification{Read: false}).
-		Count(&c)
+	cd := App.db.Model(&Notification{})
 
-	App.db.
-		Where(&Notification{Read: false}).
+	if !r.Read {
+		cd.Where(&Notification{Read: false})
+	}
+
+	cd.Count(&c)
+
+	nd := App.db.
 		Preload("Tags").
 		Limit(p.Limit).
 		Offset(p.Offset).
-		Order("updated_at DESC").
-		Find(&n)
+		Order("updated_at DESC")
+
+	if !r.Read {
+		nd.Where(&Notification{Read: false})
+	}
+
+	nd.Find(&n)
 
 	resp := &SocketLoadPayload{
 		Notifications: n,
