@@ -171,6 +171,7 @@ func GetNotification(w http.ResponseWriter, r *http.Request) {
 	App.db.Preload("Tags").
 		Limit(p.Limit).
 		Offset(p.Offset).
+		Order("created_at DESC").
 		Where(&s).
 		Find(&n)
 
