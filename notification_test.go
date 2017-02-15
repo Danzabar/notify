@@ -305,3 +305,23 @@ func TestPostReadFail(t *testing.T) {
 
 	assert.Equal(t, 404, resp.StatusCode)
 }
+
+func TestGetNotificationBySource(t *testing.T) {
+	App.db.Create(&Notification{Message: "Test1", Source: "source1"})
+	App.db.Create(&Notification{Message: "Test2", Source: "source2"})
+
+	req, _ := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/notification?source=source2", server.URL), nil)
+	req.SetBasicAuth("test", "test")
+	resp, err := http.DefaultClient.Do(req)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var n []Notification
+	json.NewDecoder(resp.Body).Decode(&n)
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, 1, len(n))
+	assert.Equal(t, "Test2", n[0].Message)
+}

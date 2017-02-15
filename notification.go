@@ -154,6 +154,13 @@ func FindNotification(w http.ResponseWriter, r *http.Request) {
 func GetNotification(w http.ResponseWriter, r *http.Request) {
 	var n []Notification
 	hasRead, err := strconv.ParseBool(r.FormValue("read"))
+	source := r.FormValue("source")
+
+	s := Notification{Read: hasRead}
+
+	if source != "" {
+		s.Source = source
+	}
 
 	if err != nil {
 		hasRead = false
@@ -164,7 +171,7 @@ func GetNotification(w http.ResponseWriter, r *http.Request) {
 	App.db.Preload("Tags").
 		Limit(p.Limit).
 		Offset(p.Offset).
-		Where(&Notification{Read: hasRead}).
+		Where(&s).
 		Find(&n)
 
 	jsonStr, _ := json.Marshal(&n)
