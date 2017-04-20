@@ -4,7 +4,6 @@ import (
 	"flag"
 	"github.com/jasonlvhit/gocron"
 	"gopkg.in/go-playground/validator.v9"
-	"log"
 )
 
 var (
@@ -28,12 +27,13 @@ func main() {
 
 	// Run Migrations
 	if *migrate {
-		log.Println("Running Migrations")
+		App.log.Debug("Running Migrations")
 		Migrate()
 	}
 
 	// Start the alert task schedule
 	if *enableAlert {
+		App.log.Debug("Starting Alert scheduler")
 		gocron.Every(1).Minute().Do(SendAlerts)
 		gocron.Start()
 	}

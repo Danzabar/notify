@@ -8,9 +8,9 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/op/go-logging"
 	"gopkg.in/go-playground/validator.v9"
 	"gopkg.in/mailgun/mailgun-go.v1"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -23,6 +23,7 @@ type Application struct {
 	socket socketio.Socket
 	router *mux.Router
 	mg     mailgun.Mailgun
+	log    *logging.Logger
 	test   bool
 	port   string
 	user   string
@@ -37,6 +38,7 @@ func NewApp(port string, dbDriver string, dbCreds string, user string, pass stri
 		panic(err)
 	}
 
+	SetLogging()
 	Validator = validator.New()
 
 	return &Application{
@@ -45,9 +47,19 @@ func NewApp(port string, dbDriver string, dbCreds string, user string, pass stri
 		port:   port,
 		server: ConnectSocket(),
 		user:   user,
+		log:    logging.MustGetLogger("notify"),
 		pass:   pass,
 		mg:     mailgun.NewMailgun(os.Getenv("MG_DOMAIN"), os.Getenv("MG_APIKEY"), os.Getenv("MG_PUBKEY")),
 	}
+}
+
+// Sets up settings for logs
+func SetLogging() {
+	f := logging.MustStringFormatter(`%{color}%{time:15:04:05.000} %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}`)
+	b := logging.NewLogBackend(os.Stderr, "", 0)
+
+	bf := logging.NewBackendFormatter(b, f)
+	logging.SetBackend(bf)
 }
 
 // Creates socket io connection
@@ -69,7 +81,7 @@ func (a *Application) Run() {
 	a.setRoutes()
 
 	a.server.On("connection", func(so socketio.Socket) {
-		log.Print("User connects to socket")
+		a.log.Debug("User connects to socket")
 		App.socket = so
 	})
 
@@ -78,8 +90,8 @@ func (a *Application) Run() {
 
 	http.Handle("/socket.io/", App)
 	http.Handle("/", a.router)
-	log.Println("Starting Web Server on " + a.port)
-	log.Fatal(http.ListenAndServe(a.port, nil))
+	a.log.Debugf("Starting Web Server on " + a.port)
+	a.log.Fatal(http.ListenAndServe(a.port, nil))
 }
 
 func (a *Application) OnNotificationRead(msg string) string {
