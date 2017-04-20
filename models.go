@@ -19,13 +19,13 @@ type Tag struct {
 	Model
 
 	// The Tag Name
-	Name string `gorm:"not null" json:"name" conform:"name" validate:"required"`
+	Name string `gorm:"not null" json:"name" validate:"required"`
 	// The source system
 	Source string `json:"source" conform:"slug"`
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
 	// Alert group relationship
-	AlertGroups []AlertGroup `gorm:"many2many:group_tags"`
+	AlertGroups []AlertGroup `gorm:"many2many:group_tags" json:"alertGroups,omitempty"`
 }
 
 // Tag Before Create
