@@ -81,6 +81,7 @@ type AlertGroup struct {
 	Name       string      `gorm:"unique" json:"name" validate:"required"`
 	ExtId      string      `gorm:"unique" json:"extId"`
 	Type       string      `json:"type"`
+	DeviceID   string      `json:"deviceId"`
 	Tags       []Tag       `gorm:"many2many:group_tags" json:"tags"`
 	Recipients []Recipient `gorm:"many2many:group_recipients" json:"recipients"`
 }

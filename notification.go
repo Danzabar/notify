@@ -168,11 +168,11 @@ func GetNotification(w http.ResponseWriter, r *http.Request) {
 
 	p := GetPaginationFromRequest(r)
 
-	App.db.Preload("Tags").
+	App.db.Where(&s).
 		Limit(p.Limit).
 		Offset(p.Offset).
 		Order("created_at DESC").
-		Where(&s).
+		Preload("Tags").
 		Find(&n)
 
 	jsonStr, _ := json.Marshal(&n)

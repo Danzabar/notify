@@ -272,7 +272,7 @@ func TestGetReturnsPaginatedList(t *testing.T) {
 
 	assert.Equal(t, 200, resp.StatusCode)
 	assert.Equal(t, 1, len(output))
-	assert.Equal(t, "Test_4", output[0].Message)
+	assert.Equal(t, "Test_5", output[0].Message)
 }
 
 func TestPostReadNotificationSuccess(t *testing.T) {
