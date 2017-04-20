@@ -176,16 +176,4 @@ func (a *Application) setRoutes() {
 	// [GET] /api/v1/tag
 	api.HandleFunc("/tag", GetTag).
 		Methods("GET")
-
-	// [POST] /api/v1/email
-	api.HandleFunc("/email", PostEmailTemplate).
-		Methods("POST")
-
-	// [GET] /api/v1/email
-	api.HandleFunc("/email", GetEmailTemplate).
-		Methods("GET")
-
-	// [GET] /api/v1/email/{id}
-	api.HandleFunc("/email/{id}", FindEmailTemplate).
-		Methods("GET")
 }

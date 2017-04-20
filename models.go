@@ -24,8 +24,6 @@ type Tag struct {
 	Source string `json:"source" conform:"slug"`
 	// External ID
 	ExtId string `gorm:"unique" json:"extid"`
-	// Email Template associated with tag
-	EmailTemplate EmailTemplate `json:"-" validate:"-"`
 	// Alert group relationship
 	AlertGroups []AlertGroup `gorm:"many2many:group_tags"`
 }
@@ -78,41 +76,15 @@ func (n *Notification) BeforeCreate() {
 type AlertGroup struct {
 	Model
 
-	Name       string      `gorm:"unique" json:"name" validate:"required"`
-	ExtId      string      `gorm:"unique" json:"extId"`
-	Type       string      `json:"type"`
-	DeviceID   string      `json:"deviceId"`
-	Tags       []Tag       `gorm:"many2many:group_tags" json:"tags"`
-	Recipients []Recipient `gorm:"many2many:group_recipients" json:"recipients"`
+	Name     string `gorm:"unique" json:"name" validate:"required"`
+	ExtId    string `gorm:"unique" json:"extId"`
+	Type     string `json:"type"`
+	DeviceID string `json:"deviceId"`
+	Emails   string `gorm:"type:text" json:"emails"`
+	Tags     []Tag  `gorm:"many2many:group_tags" json:"tags"`
 }
 
 func (a *AlertGroup) BeforeCreate() {
 	a.ExtId = uuid.TimeUUID().String()
 	conform.Strings(a)
-}
-
-type Recipient struct {
-	Model
-
-	Name  string `json:"name" conform:"name"`
-	Email string `json:"email"`
-	ExtId string `gorm:"unique" json:"extId"`
-}
-
-func (r *Recipient) BeforeCreate() {
-	r.ExtId = uuid.TimeUUID().String()
-	conform.Strings(r)
-}
-
-type EmailTemplate struct {
-	Model
-
-	Name    string `json:"name" conform:"name" validate:"required"`
-	ExtId   string `json:"extId" gorm:"unique"`
-	Content string `json:"content" gorm:"type:text"`
-}
-
-func (e *EmailTemplate) BeforeCreate() {
-	e.ExtId = uuid.TimeUUID().String()
-	//conform.Strings(e)
 }

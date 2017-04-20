@@ -24,20 +24,10 @@ func (n *NotificationRequest) Deserialize(r *http.Request) error {
 	return json.NewDecoder(r.Body).Decode(n)
 }
 
-type EmailTemplateRequest struct {
-	Template EmailTemplate `json:"template"`
-	Tags     []Tag         `json:"tags,omitempty"`
-}
-
-func (e *EmailTemplateRequest) Deserialize(r *http.Request) error {
-	return json.NewDecoder(r.Body).Decode(e)
-}
-
 // Request Body for Alert groups
 type AlertGroupRequest struct {
-	Group      AlertGroup  `json:"group"`
-	Recipients []Recipient `json:"recipients"`
-	Tags       []Tag       `json:"tags"`
+	Group AlertGroup `json:"group"`
+	Tags  []Tag      `json:"tags"`
 }
 
 func (a *AlertGroupRequest) Deserialize(r *http.Request) error {

@@ -29,11 +29,6 @@ func PostAlertGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for k := range a.Recipients {
-		tx.Where(&a.Recipients[k]).FirstOrCreate(&a.Recipients[k])
-		tx.Model(&a.Group).Association("Recipients").Append(&a.Recipients[k])
-	}
-
 	for k := range a.Tags {
 		tx.Where(&a.Tags[k]).FirstOrCreate(&a.Tags[k])
 		tx.Model(&a.Group).Association("Tags").Append(&a.Tags[k])
@@ -54,7 +49,6 @@ func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 	var u AlertGroupRequest
 
 	err := App.db.Preload("Tags").
-		Preload("Recipients").
 		Where("ext_id = ?", params["id"]).
 		First(&a).
 		Error
@@ -86,11 +80,6 @@ func PutAlertGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for k := range u.Recipients {
-		tx.Where(&u.Recipients[k]).FirstOrCreate(&u.Recipients[k])
-		tx.Model(&a).Association("Recipients").Append(&u.Recipients[k])
-	}
-
 	for k := range u.Tags {
 		tx.Where(&u.Tags[k]).FirstOrCreate(&u.Tags[k])
 		tx.Model(&a).Association("Tags").Append(&u.Tags[k])
@@ -112,7 +101,6 @@ func GetAlertGroup(w http.ResponseWriter, r *http.Request) {
 		Limit(p.Limit).
 		Offset(p.Offset).
 		Preload("Tags").
-		Preload("Recipients").
 		Find(&a)
 
 	jsonStr, _ := json.Marshal(&a)
