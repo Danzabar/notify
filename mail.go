@@ -18,7 +18,7 @@ func NewMailClient() *Mailgun {
 }
 
 func (m *Mailgun) SendNotification(a AlertGroup, t string) bool {
-    ms := m.Client.NewMessage("notify@valeska.co.uk", fmt.Sprintf("New notifications for %s", t), "New Notifications!")
+    ms := m.Client.NewMessage(os.Getenv("MG_FROM"), fmt.Sprintf("New notifications for %s", t), "New Notifications!")
     ms.SetHtml(t)
 
     for _, v := range strings.Split(a.Emails, ",") {
