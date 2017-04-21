@@ -17,6 +17,7 @@ func main() {
 	dbDriver := flag.String("driver", "sqlite3", "The database driver notify should use")
 	dbCreds := flag.String("creds", "/tmp/main.db", "The database credentials")
 	enableAlert := flag.Bool("a", false, "Enables the alerting schedule")
+	runAlert := flag.Bool("r", false, "Runs alerting straight away")
 	port := flag.String("port", ":8080", "Port on which the server runs")
 	user := flag.String("user", "admin", "Username for basic auth stuffs")
 	pass := flag.String("pass", "changeme", "Password for authentication")
@@ -33,6 +34,9 @@ func main() {
 
 	// Start the alert task schedule
 	if *enableAlert {
+		if *runAlert {
+			SendAlerts()
+		}
 		App.log.Debug("Starting Alert scheduler")
 		gocron.Every(1).Minute().Do(SendAlerts)
 		gocron.Start()
