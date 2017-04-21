@@ -8,6 +8,8 @@ func SendAlerts() {
 		Preload("Tags.AlertGroups").
 		Where(Notification{Alerted: false, Read: false}).
 		Find(&n)
+
+	FilterCorrespondence(n)
 }
 
 func FilterCorrespondence(n []Notification) {
@@ -43,6 +45,17 @@ func FilterCorrespondence(n []Notification) {
 				break
 			}
 		}
+	}
+
+	UpdateNotifications(s)
+}
+
+func UpdateNotifications(n []Notification) {
+	for _, v := range n {
+		v.Alerted = true
+		v.Read = true
+
+		App.db.Save(&v)
 	}
 }
 

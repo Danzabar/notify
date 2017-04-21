@@ -49,7 +49,7 @@ func TestPostTagSuccess(t *testing.T) {
 	json.NewDecoder(resp.Body).Decode(&tag)
 
 	assert.Equal(t, 200, resp.StatusCode)
-	assert.Equal(t, "Test", tag.Name)
+	assert.Equal(t, "test1", tag.Name)
 }
 
 func TestPostTagValidation(t *testing.T) {
