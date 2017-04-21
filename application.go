@@ -10,7 +10,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/op/go-logging"
 	"gopkg.in/go-playground/validator.v9"
-	"gopkg.in/mailgun/mailgun-go.v1"
 	"net/http"
 	"os"
 	"strings"
@@ -22,12 +21,26 @@ type Application struct {
 	server *socketio.Server
 	socket socketio.Socket
 	router *mux.Router
-	mg     mailgun.Mailgun
+	mg     Alerter
+	pb     Alerter
 	log    *logging.Logger
 	test   bool
 	port   string
 	user   string
 	pass   string
+}
+
+type Alerter interface {
+	SendNotification(a AlertGroup, t string) bool
+}
+
+// Mock for alerting
+type MockAlerter struct {
+	Pass bool
+}
+
+func (m *MockAlerter) SendNotification(a AlertGroup, t string) bool {
+	return m.Pass
 }
 
 // Creates a new application and returns the pointer value
@@ -49,7 +62,8 @@ func NewApp(port string, dbDriver string, dbCreds string, user string, pass stri
 		user:   user,
 		log:    logging.MustGetLogger("notify"),
 		pass:   pass,
-		mg:     mailgun.NewMailgun(os.Getenv("MG_DOMAIN"), os.Getenv("MG_APIKEY"), os.Getenv("MG_PUBKEY")),
+		mg:     NewMailClient(),
+		pb:     NewPushBullet(),
 	}
 }
 

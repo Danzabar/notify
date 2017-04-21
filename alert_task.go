@@ -1,5 +1,10 @@
 package main
 
+import (
+	"bytes"
+	"fmt"
+)
+
 // Checks for and sends alerts
 func SendAlerts() {
 	var n []Notification
@@ -65,4 +70,16 @@ func SendPushNotification(a AlertGroup, n []Notification) bool {
 
 func SendEmailNotification(a AlertGroup, n []Notification) bool {
 	return true
+}
+
+func createEmailBody(n []Notification, t string) string {
+	var buf bytes.Buffer
+	buf.WriteString(fmt.Sprintf("<html><div><p>New notifications</p><ul>", t))
+
+	for _, v := range n {
+		buf.WriteString(fmt.Sprintf("<li>%s (%s)- %s</li>", v.Message, v.Source, v.Action))
+	}
+
+	buf.WriteString("</ul><p>Do not reply to this email</p></div></html>")
+	return buf.String()
 }
