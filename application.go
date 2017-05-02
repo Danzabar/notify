@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/Danzabar/WatchDog/plugins"
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -146,10 +147,11 @@ func (a *Application) OnNotificationRefresh(msg string) string {
 
 // Creates the Routes
 func (a *Application) setRoutes() {
-	a.router.HandleFunc("/ping", PingHandler)
 
 	// API specific routes
 	api := a.router.PathPrefix("/api/v1").Subrouter()
+
+	a.router.HandleFunc("/health", Use(plugins.HealthCheckHandler, BasicAuth))
 
 	// [POST] /api/v1/alert-group
 	api.HandleFunc("/alert-group", PostAlertGroup).
