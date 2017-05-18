@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"github.com/Danzabar/WatchDog/plugins"
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/googollee/go-socket.io"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -11,6 +13,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/op/go-logging"
 	"gopkg.in/go-playground/validator.v9"
+	translations "gopkg.in/go-playground/validator.v9/translations/en"
 	"net/http"
 	"os"
 	"strings"
@@ -25,6 +28,7 @@ type Application struct {
 	mg     Alerter
 	pb     Alerter
 	log    *logging.Logger
+	trans  ut.Translator
 	test   bool
 	port   string
 	user   string
@@ -53,7 +57,7 @@ func NewApp(port string, dbDriver string, dbCreds string, user string, pass stri
 	}
 
 	SetLogging()
-	Validator = validator.New()
+	t := CreateValidator()
 
 	return &Application{
 		db:     db,
@@ -65,7 +69,19 @@ func NewApp(port string, dbDriver string, dbCreds string, user string, pass stri
 		pass:   pass,
 		mg:     NewMailClient(),
 		pb:     NewPushBullet(),
+		trans:  t,
 	}
+}
+
+func CreateValidator() ut.Translator {
+	en := en.New()
+	uni := ut.New(en, en)
+
+	trans, _ := uni.GetTranslator("en")
+	Validator = validator.New()
+
+	translations.RegisterDefaultTranslations(Validator, trans)
+	return trans
 }
 
 // Sets up settings for logs

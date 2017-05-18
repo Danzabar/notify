@@ -31,7 +31,7 @@ func WriteValidationErrorResponse(w http.ResponseWriter, err error) {
 	}
 
 	for _, e := range err.(validator.ValidationErrors) {
-		v.Errors[e.Field()] = "This field is invalid"
+		v.Errors[e.Field()] = e.Translate(App.trans)
 	}
 
 	WriteResponse(w, 400, v)
