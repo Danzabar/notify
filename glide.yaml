@@ -1,0 +1,30 @@
+package: github.com/Danzabar/notify
+import:
+- package: github.com/go-playground/locales
+  subpackages:
+  - en
+- package: github.com/go-playground/universal-translator
+- package: github.com/googollee/go-socket.io
+- package: github.com/gorilla/mux
+- package: github.com/influxdata/influxdb
+  subpackages:
+  - uuid
+- package: github.com/jasonlvhit/gocron
+- package: github.com/jinzhu/gorm
+  subpackages:
+  - dialects/mysql
+  - dialects/postgres
+  - dialects/sqlite
+- package: github.com/leebenson/conform
+- package: github.com/mitsuse/pushbullet-go
+  subpackages:
+  - requests
+- package: github.com/op/go-logging
+- package: gopkg.in/go-playground/validator.v9
+  subpackages:
+  - translations/en
+- package: gopkg.in/mailgun/mailgun-go.v1
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert
