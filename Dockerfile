@@ -12,6 +12,6 @@ ADD . .
 RUN glide install --skip-test -v
 RUN go install
 
-ENTRYPOINT /go/bin/notify -a -driver=$DATABASE_DRIVER -creds=$DATABASE_USER:$DATABASE_PASS@/$DATABASE?charsetutf8&parseTime=true&loc=Local
+ENTRYPOINT /go/bin/notify -a -user=$AUTH_USER -pass=$AUTH_PASS -driver=$DATABASE_DRIVER -creds=$DATABASE_USER:$DATABASE_PASS@/$DATABASE?charsetutf8&parseTime=true&loc=Local
 
 EXPOSE 8080
